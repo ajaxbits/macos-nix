@@ -1,0 +1,65 @@
+plugins {
+    tab-bar { path "tab-bar"; }
+    status-bar { path "status-bar"; }
+    compact-bar { path "compact-bar"; }
+    session-manager { path "session-manager"; }
+}
+
+default_layout "compact"
+
+themes {
+    // gruvbox-dark
+    default {
+        fg 235 219 178
+        bg 80 73 69
+        black 60 56 54
+        red 204 36 29
+        green 152 151 26
+        yellow 215 153 33
+        blue 69 133 136
+        magenta 177 98 134
+        cyan 104 157 106
+        white 251 241 199
+        orange 214 93 14
+    }
+}
+
+keybinds {
+    unbind "Ctrl q"
+
+    normal clear-defaults=true {
+        bind "Ctrl a" { SwitchToMode "Tmux"; }
+        unbind "Ctrl b"
+    }
+
+    tmux clear-defaults=true {
+        bind "Ctrl a" { Write 2; SwitchToMode "Normal"; }
+        bind "Esc" { SwitchToMode "Normal"; }
+        bind "g" { SwitchToMode "Locked"; }
+        bind "p" { SwitchToMode "Pane"; }
+        bind "t" { SwitchToMode "Tab"; }
+        bind "r" { SwitchToMode "Resize"; }
+        // bind "h" { SwitchToMode "Move"; }
+        bind "s" { SwitchToMode "Scroll"; }
+        bind "o" { SwitchToMode "Session"; }
+
+        bind "h" { MoveFocusOrTab "Left"; }
+        bind "j" { MoveFocus "Down"; }
+        bind "k" { MoveFocus "Up"; }
+        bind "l" { MoveFocusOrTab "Right"; }
+
+        bind "Enter" { NewPane "Down"; SwitchToMode "Normal"; }
+        bind "Ctrl h" { NewPane "Left"; SwitchToMode "Normal"; }
+        bind "Ctrl j" { NewPane "Down"; SwitchToMode "Normal"; }
+        bind "Ctrl k" { NewPane "Up"; SwitchToMode "Normal"; }
+        bind "Ctrl l" { NewPane "Right"; SwitchToMode "Normal"; }
+
+        bind "x" { CloseFocus; SwitchToMode "Normal"; }
+        bind "=" { Resize "Increase"; }
+        bind "-" { Resize "Decrease"; }
+
+        bind "t" { NewTab; }
+
+        bind "w" { ToggleFloatingPanes;}
+    }
+}
