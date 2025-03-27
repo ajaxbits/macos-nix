@@ -4,13 +4,10 @@
     enable = true;
     onActivation.cleanup = "zap";
     onActivation.upgrade = true;
-    taps = [
-      "homebrew/bundle"
-      "homebrew/cask-versions"
-    ];
     casks = [
       "ankerwork"
       "betterdisplay"
+      "bitwarden"
       "discord"
       "eloston-chromium"
       "fantastical"
@@ -22,6 +19,7 @@
       "rocket"
       "tailscale"
       "talon"
+      "tor-browser"
       "visual-studio-code"
       "vlc"
     ];

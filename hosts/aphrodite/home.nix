@@ -6,15 +6,20 @@
 {
   imports = [
     "${self}/common/fish"
+    "${self}/common/jujutsu"
     "${self}/common/zellij"
   ];
+
   home = {
     stateVersion = "22.05";
     packages = with pkgs; [
+      bat
       coreutils
       curl
       entr
       gh
+      git
+      jujutsu
       neofetch
       nix-output-monitor
       xh

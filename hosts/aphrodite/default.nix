@@ -1,5 +1,14 @@
-{ pkgs, inputs, ... }:
 {
+  inputs,
+  pkgs,
+  self,
+  user,
+  ...
+}:
+{
+  imports = [
+    ./brew.nix
+  ];
   nix = {
     settings = {
       trusted-users = [
@@ -31,10 +40,12 @@
 
   programs.zsh.enable = true;
   programs.fish.enable = true;
+  users.knownUsers = [ "ajax" ];
   users.users."ajax" = {
-    home = "/Users/ajax";
     description = "Alex Jackson";
+    home = "/Users/ajax";
     shell = pkgs.fish;
+    uid = 501;
   };
 
   system = {
@@ -64,23 +75,29 @@
     keyboard.remapCapsLockToEscape = true;
   };
 
-  environment.variables = {
-    "EDITOR" = "nvim";
-  };
-  environment.systemPackages = with pkgs; [
-    du-dust
-    eza
-    fd
-    gron
-    hck
-    jujutsu
-    ripgrep
-    sd
-    uv
-    viddy
-
-    inputs.nvim.packages.aarch64-darwin.default
+  fonts.packages = [
+    "${self}/common/fonts/ComicCode"
   ];
+  environment = {
+    systemPackages = with pkgs; [
+      du-dust
+      eza
+      fd
+      gron
+      hck
+      ripgrep
+      sd
+      uv
+      viddy
+
+      inputs.nvim.packages.aarch64-darwin.default
+    ];
+
+    variables = {
+      EDITOR = "nvim";
+      SSH_AUTH_SOCK = "/Users/${user}/.bitwarden-ssh-agent.sock";
+    };
+  };
 
   security.pam.services.sudo_local.touchIdAuth = true;
 }

@@ -42,6 +42,7 @@
           inherit (inputs.darwin.lib) darwinSystem;
           system = "aarch64-darwin";
           user = "ajax";
+          hostname = "Alexs-MacBook-Air";
 
           # Configuration for `nixpkgs`
           nixpkgs = {
@@ -53,11 +54,16 @@
           };
 
           specialArgs = {
-            inherit inputs self user;
+            inherit
+              hostname
+              inputs
+              self
+              user
+              ;
           };
         in
         {
-          aphrodite = darwinSystem {
+          ${hostname} = darwinSystem {
             inherit specialArgs system;
             modules = [
               # Base
