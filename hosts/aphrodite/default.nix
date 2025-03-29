@@ -1,7 +1,6 @@
 {
   inputs,
   pkgs,
-  self,
   user,
   ...
 }:
@@ -48,6 +47,12 @@
     uid = 501;
   };
 
+  virtualisation.podman = {
+    enable = true;
+    compose.enable = true;
+    dockerCompat = true;
+  };
+
   system = {
     stateVersion = 5;
     defaults = {
@@ -62,6 +67,7 @@
       };
       screencapture.location = "/tmp";
       trackpad = {
+        ActuationStrength = 0;
         Clicking = true; # tap to click
         FirstClickThreshold = 0; # "light" haptic feedback
         TrackpadThreeFingerDrag = true;
@@ -75,9 +81,6 @@
     keyboard.remapCapsLockToEscape = true;
   };
 
-  fonts.packages = [
-    "${self}/common/fonts/ComicCode"
-  ];
   environment = {
     systemPackages = with pkgs; [
       du-dust

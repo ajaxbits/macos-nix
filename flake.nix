@@ -92,6 +92,9 @@
               # secrets
               inputs.agenix.darwinModules.default
 
+              # other modules
+              "${self}/common/podman"
+
               #
               {
                 environment.systemPackages = [ inputs.nvim.packages.aarch64-darwin.default ];

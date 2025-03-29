@@ -16,6 +16,7 @@
       "homerow"
       "jordanbaird-ice"
       "keepingyouawake"
+      "podman-desktop"
       "rocket"
       "tailscale"
       "talon"
