@@ -92,6 +92,7 @@
       sd
       uv
       viddy
+      winetricks
 
       inputs.nvim.packages.aarch64-darwin.default
     ];
