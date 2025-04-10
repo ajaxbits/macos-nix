@@ -8,6 +8,7 @@
       "ankerwork"
       "betterdisplay"
       "bitwarden"
+      "cabextract"
       "discord"
       "eloston-chromium"
       "fantastical"
@@ -17,12 +18,15 @@
       "jordanbaird-ice"
       "keepingyouawake"
       "podman-desktop"
+      "prismlauncher"
       "rocket"
       "tailscale"
       "talon"
       "tor-browser"
       "visual-studio-code"
       "vlc"
+      "wine"
+      "winetricks"
     ];
     caskArgs.appdir = "/Users/${user}/Applications";
   };

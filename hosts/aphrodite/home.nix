@@ -17,6 +17,7 @@
       coreutils
       curl
       entr
+      fx
       gh
       git
       jujutsu
