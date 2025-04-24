@@ -93,6 +93,7 @@
               inputs.agenix.darwinModules.default
 
               # other modules
+              "${self}/common/aerospace"
               "${self}/common/podman"
 
               #
