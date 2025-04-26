@@ -7,6 +7,7 @@
 {
   imports = [
     ./brew.nix
+    ../../common/aerospace
   ];
   nix = {
     settings = {

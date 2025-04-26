@@ -1,8 +1,11 @@
-{ pkgsUnstable, user, ... }:
+{
+  pkgs,
+  ...
+}:
 {
   services.aerospace = {
     enable = true;
-    package = pkgsUnstable.aerospace;
+    package = pkgs.aerospace; # TODO: enable pkgsUnstable eventually
+    settings = import ./settings;
   };
-  environment.etc."/home/${user}/aerospace.toml".source = ./aerospace.toml;
 }
