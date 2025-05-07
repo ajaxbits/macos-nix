@@ -6,7 +6,7 @@
 {
   imports = [
     "${self}/common/fish"
-    "${self}/common/jujutsu"
+    "${self}/common/vcs"
     "${self}/common/zellij"
   ];
 
