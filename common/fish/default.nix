@@ -2,6 +2,7 @@
 {
   imports = [
     ./starship.nix
+    ./theme.nix
     ./zoxide.nix
   ];
 
