@@ -19,6 +19,7 @@
       "podman-desktop"
       "prismlauncher"
       "rocket"
+      "shottr"
       "steam"
       "tailscale"
       "talon"
