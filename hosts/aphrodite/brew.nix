@@ -20,6 +20,7 @@
       "prismlauncher"
       "rocket"
       "shottr"
+      "slack"
       "steam"
       "tailscale"
       "talon"
