@@ -36,36 +36,44 @@
       ...
     }@inputs:
     parts.lib.mkFlake { inherit inputs; } {
-      imports = [ inputs.home-manager.flakeModules.home-manager ];
-      systems = [ "aarch64-darwin" ];
+      imports = [
+        inputs.home-manager.flakeModules.home-manager
+      ];
+      systems = [
+        "aarch64-darwin"
+      ];
+
       flake.darwinConfigurations =
         let
           inherit (inputs.darwin.lib) darwinSystem;
-          system = "aarch64-darwin";
           user = "ajax";
-          hostname = "Alexs-MacBook-Air";
+          macbookAir = "Alexs-MacBook-Air";
 
           # Configuration for `nixpkgs`
           nixpkgs = {
-            overlays = [ inputs.nur.overlays.default ];
             config = {
               allowBroken = true;
               allowUnfree = true;
             };
+            hostPlatform = "aarch64-darwin";
+            overlays = [ inputs.nur.overlays.default ];
           };
 
           specialArgs = {
             inherit
-              hostname
               inputs
               self
               user
               ;
+
+            hostname = macbookAir;
+            system = nixpkgs.hostPlatform;
           };
         in
         {
-          ${hostname} = darwinSystem {
-            inherit specialArgs system;
+          ${macbookAir} = darwinSystem {
+            inherit specialArgs;
+
             modules = [
               # Base
               lix-module.nixosModules.default
