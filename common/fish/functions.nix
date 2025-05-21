@@ -17,7 +17,7 @@
         --accept-flake-config \
         $flakeLocation/.#darwinConfigurations.${hostname}.system
 
-      nix run \
+      sudo nix run \
         --accept-flake-config \
         nix-darwin/master#darwin-rebuild -- \
             switch --flake $flakeLocation/.
