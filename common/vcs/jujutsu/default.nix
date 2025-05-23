@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
   gitCfg = config.programs.git;
 in
@@ -10,8 +10,11 @@ in
         name = gitCfg.userName;
         email = gitCfg.userEmail;
       };
-
-      ui.command = "log-recent";
+      ui = {
+        command = "log-recent";
+        diff.format = "git";
+        pager = "${pkgs.delta}/bin/delta --side-by-side";
+      };
       aliases.log-recent = [
         "log"
         "-r"
