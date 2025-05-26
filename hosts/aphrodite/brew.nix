@@ -6,6 +6,7 @@
     onActivation.upgrade = true;
     casks = [
       "ankerwork"
+      "balenaetcher"
       "betterdisplay"
       "bitwarden"
       "discord"
@@ -18,6 +19,7 @@
       "keepingyouawake"
       "podman-desktop"
       "prismlauncher"
+      "raspberry-pi-imager"
       "rocket"
       "shottr"
       "steam"
