@@ -90,7 +90,7 @@
                   useUserPackages = true;
                   extraSpecialArgs = specialArgs;
 
-                  users."ajax" =
+                  users.${user} =
                     { ... }:
                     {
                       imports = [ "${self}/hosts/aphrodite/home.nix" ];

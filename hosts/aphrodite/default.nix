@@ -13,7 +13,7 @@
     settings = {
       trusted-users = [
         "@admin"
-        "ajax"
+        user
       ];
       trusted-substituters = [ "https://cache.garnix.io" ];
       extra-substituters = [ "https://cache.lix.systems" ];
@@ -40,10 +40,11 @@
 
   programs.zsh.enable = true;
   programs.fish.enable = true;
-  users.knownUsers = [ "ajax" ];
-  users.users."ajax" = {
+  system.primaryUser = user;
+  users.knownUsers = [ user ];
+  users.users.${user} = {
     description = "Alex Jackson";
-    home = "/Users/ajax";
+    home = "/Users/${user}";
     shell = pkgs.fish;
     uid = 501;
   };
