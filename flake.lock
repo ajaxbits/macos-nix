@@ -462,11 +462,11 @@
         "nixvim": "nixvim"
       },
       "locked": {
-        "lastModified": 1748890143,
-        "narHash": "sha256-IjU7sc5a3I0VPv3Z8yql0YuRKEmgmQrhXjWE7fSZjVM=",
+        "lastModified": 1752339556,
+        "narHash": "sha256-Z7VZ+D+YSQ01PhhdAH+b/NYvROqcrOiZI2FTz1wfDuw=",
         "owner": "ajaxbits",
         "repo": "nvim",
-        "rev": "12c9567368978a6408a5957e00c3072b7c4d3449",
+        "rev": "d4ec507ef1e500ea27208f0c717817ce5ceb3f8c",
         "type": "github"
       },
       "original": {
