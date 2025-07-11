@@ -17,6 +17,7 @@
       "homerow"
       "jordanbaird-ice"
       "keepingyouawake"
+      "notesnook"
       "podman-desktop"
       "prismlauncher"
       "raspberry-pi-imager"
