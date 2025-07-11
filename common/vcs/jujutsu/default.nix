@@ -12,7 +12,7 @@ in
       };
       ui = {
         command = "log-recent";
-        diff.format = "git";
+        diff-formatter = ":git";
         pager = "${pkgs.delta}/bin/delta --side-by-side";
       };
       aliases.log-recent = [
