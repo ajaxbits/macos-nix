@@ -85,6 +85,7 @@
 
   environment = {
     systemPackages = with pkgs; [
+      attic-client
       du-dust
       eza
       fd
