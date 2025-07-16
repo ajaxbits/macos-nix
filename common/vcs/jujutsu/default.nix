@@ -1,9 +1,15 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
   gitCfg = config.programs.git;
+  jj = lib.getExe pkgs.jujutsu;
 in
 {
-  programs.jujutsu = {
+  config.programs.jujutsu = {
     inherit (gitCfg) enable;
     settings = {
       user = {
@@ -73,4 +79,9 @@ in
       };
     };
   };
+
+  config.programs.fish.functions.js = ''
+    ${jj} git fetch
+    ${jj} new trunk()
+  '';
 }
