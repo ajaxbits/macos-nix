@@ -18,6 +18,7 @@
       "jordanbaird-ice"
       "keepingyouawake"
       "notesnook"
+      "passepartout"
       "podman-desktop"
       "prismlauncher"
       "raspberry-pi-imager"
