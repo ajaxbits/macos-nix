@@ -22,6 +22,7 @@
       "podman-desktop"
       "prismlauncher"
       "raspberry-pi-imager"
+      "roam-research"
       "rocket"
       "shottr"
       "steam"

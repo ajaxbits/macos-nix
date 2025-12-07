@@ -6,10 +6,6 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     # Meta
-    lix-module = {
-      url = "https://git.lix.systems/lix-project/nixos-module/archive/2.93.0.tar.gz";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     parts.url = "github:hercules-ci/flake-parts";
 
     # System
@@ -31,7 +27,6 @@
     {
       self,
       darwin,
-      lix-module,
       parts,
       ...
     }@inputs:
@@ -75,9 +70,6 @@
             inherit specialArgs;
 
             modules = [
-              # Base
-              lix-module.nixosModules.default
-
               # Main `nix-darwin` config
               ./hosts/aphrodite
 
@@ -103,6 +95,7 @@
 
               # other modules
               "${self}/common/podman"
+              "${self}/common/nix"
 
               #
               {
@@ -115,15 +108,13 @@
 
   nixConfig = {
     extra-substituters = [
-      "https://cache.nix.ajax.casa/default?priority=10"
+      "https://cache.nix.ajax.casa/patroclus?priority=10"
       "https://cache.garnix.io"
-      "https://cache.lix.systems"
     ];
 
     extra-trusted-public-keys = [
-      "default:UWyYKJgYFtej9lMrKcS5imS+WVuVRS6hKi9yaRL1g0s="
+      "patroclus:Qy1DbSYS2lL+DDxXY+e0C4ryF7COHyf6LN4g4OtcbW4="
       "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
-      "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="
     ];
   };
 }

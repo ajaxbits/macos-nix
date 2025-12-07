@@ -35,6 +35,11 @@ let
       binding = "m";
       apps = [ "com.apple.MobileSMS" ];
     };
+    notes = {
+      apps = [ "com.roam-research.desktop-app" ];
+      binding = "n";
+      name = "[N]otes";
+    };
     slack = {
       name = "[S]lack";
       binding = "s";
