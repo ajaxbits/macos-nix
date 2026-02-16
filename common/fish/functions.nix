@@ -22,4 +22,9 @@
         nix-darwin/master#darwin-rebuild -- \
             switch --flake $flakeLocation/.
     '';
+
+  opencode = # fish
+    ''
+      nix run github:numtide/llm-agents.nix#opencode
+    '';
 }
