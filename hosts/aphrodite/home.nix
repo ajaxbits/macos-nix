@@ -5,6 +5,7 @@
 }:
 {
   imports = [
+    "${self}/common/ai/opencode"
     "${self}/common/fish"
     "${self}/common/vcs"
     "${self}/common/zellij"
