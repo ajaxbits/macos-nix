@@ -10,6 +10,7 @@
   imports = [
     self.homeManagerModules.default
     inputs.agenix.homeManagerModules.default
+    "${self}/common/terminal/ghostty"
   ];
 
   programs.opencode.package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.opencode;
