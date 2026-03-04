@@ -24,6 +24,7 @@
       jujutsu
       neofetch
       nix-output-monitor
+      seventeenlands
       xh
       zoxide
     ];
