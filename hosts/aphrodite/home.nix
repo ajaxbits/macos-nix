@@ -1,6 +1,9 @@
 {
   pkgs,
   self,
+  inputs,
+  config,
+  user,
   ...
 }:
 {
@@ -9,7 +12,21 @@
     "${self}/common/fish"
     "${self}/common/vcs"
     "${self}/common/zellij"
+    inputs.agenix.homeManagerModules.default
   ];
+
+  age = {
+    identityPaths = [ "/Users/${user}/.ssh/bitwarden" ];
+    secrets = {
+      kagi_api_key.file = ../../secrets/kagi_api_key.age;
+    };
+  };
+
+  programs.fish.interactiveShellInit = ''
+    if test -r ${config.age.secrets.kagi_api_key.path}
+      set -gx KAGI_API_KEY (string trim (cat ${config.age.secrets.kagi_api_key.path}))
+    end
+  '';
 
   home = {
     stateVersion = "22.05";
