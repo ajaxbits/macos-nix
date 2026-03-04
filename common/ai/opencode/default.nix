@@ -1,19 +1,12 @@
-{
-  inputs,
-  pkgs,
-  lib,
-  ...
-}:
+{ pkgs, lib, ... }:
 let
   inherit (lib) getExe';
-  opencode-pkg = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.opencode;
   uvx = getExe' pkgs.uv "uvx";
 in
 {
   programs = {
     opencode = {
       enable = true;
-      package = opencode-pkg;
 
       rules = ./AGENTS.md;
       enableMcpIntegration = true;

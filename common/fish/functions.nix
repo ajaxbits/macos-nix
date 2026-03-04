@@ -1,4 +1,7 @@
-{ hostname, ... }:
+{ config, ... }:
+let
+  hostName = config.networking.hostName or "unknown";
+in
 {
   t = # fish
     ''
@@ -15,7 +18,7 @@
 
       nom build \
         --accept-flake-config \
-        $flakeLocation/.#darwinConfigurations.${hostname}.system
+        $flakeLocation/.#darwinConfigurations.${hostName}.system
 
       sudo nix run \
         --accept-flake-config \

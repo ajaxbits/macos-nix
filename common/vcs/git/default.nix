@@ -1,8 +1,22 @@
+{ profile, ... }:
+let
+  identities = {
+    personal = {
+      name = "Alex Jackson";
+      email = "git" + "@" + "ajaxbits" + "." + "com";
+    };
+    work = {
+      name = "FIXME";
+      email = "FIXME@work.example.com";
+    };
+  };
+  identity = identities.${profile};
+in
 {
   programs.git = {
     enable = true;
-    userName = "Alex Jackson";
-    userEmail = "git" + "@" + "ajaxbits" + "." + "com";
+    userName = identity.name;
+    userEmail = identity.email;
     lfs.enable = true;
     extraConfig = {
       init.defaultBranch = "main";

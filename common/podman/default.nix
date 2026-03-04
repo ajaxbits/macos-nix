@@ -3,6 +3,7 @@
   config,
   pkgs,
   lib,
+  profile,
   ...
 }:
 let
@@ -27,7 +28,17 @@ in
     dockerCompat = mkEnableOption "Create an alias mapping docker commands to podman.";
   };
 
-  config = mkIf cfg.enable {
+  config = lib.mkMerge [
+    # force-enable podman on personal profile
+    (mkIf (profile == "personal") {
+      virtualisation.podman = {
+        enable = true;
+        compose.enable = true;
+        dockerCompat = true;
+      };
+    })
+
+    (mkIf cfg.enable {
     environment.systemPackages =
       [
         podman
@@ -67,5 +78,6 @@ in
           ''
         )
       ];
-  };
+    })
+  ];
 }

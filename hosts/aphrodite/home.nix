@@ -8,12 +8,11 @@
 }:
 {
   imports = [
-    "${self}/common/ai/opencode"
-    "${self}/common/fish"
-    "${self}/common/vcs"
-    "${self}/common/zellij"
+    self.homeManagerModules.default
     inputs.agenix.homeManagerModules.default
   ];
+
+  programs.opencode.package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.opencode;
 
   age = {
     identityPaths = [ "/Users/${user}/.ssh/bitwarden" ];

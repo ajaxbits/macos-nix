@@ -1,4 +1,4 @@
-{ pkgs, hostname, ... }:
+{ pkgs, config, ... }:
 {
   imports = [
     ./starship.nix
@@ -19,7 +19,7 @@
           mkdir -p $dir
           cd $dir
         '';
-    } // (import ./functions.nix { inherit hostname; });
+    } // (import ./functions.nix { inherit config; });
 
     shellAbbrs = {
       "lg" = "lazygit";

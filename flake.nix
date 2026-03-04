@@ -39,6 +39,32 @@
         "aarch64-darwin"
       ];
 
+      flake = {
+        homeManagerModules = {
+          fish = import ./common/fish;
+          vcs = import ./common/vcs;
+          zellij = import ./common/zellij;
+          opencode = import ./common/ai/opencode;
+          default = { imports = [
+            self.homeManagerModules.fish
+            self.homeManagerModules.vcs
+            self.homeManagerModules.zellij
+            self.homeManagerModules.opencode
+          ]; };
+        };
+
+        darwinModules = {
+          aerospace = import ./common/aerospace;
+          nix = import ./common/nix;
+          podman = import ./common/podman;
+          default = { imports = [
+            ./common/aerospace
+            ./common/nix
+            ./common/podman
+          ]; };
+        };
+      };
+
       flake.darwinConfigurations =
         let
           inherit (inputs.darwin.lib) darwinSystem;
@@ -62,6 +88,7 @@
               user
               ;
 
+            profile = "personal";
             hostname = macbookAir;
             system = nixpkgs.hostPlatform;
           };
@@ -93,10 +120,6 @@
 
               # secrets
               inputs.agenix.darwinModules.default
-
-              # other modules
-              "${self}/common/podman"
-              "${self}/common/nix"
 
               #
               {

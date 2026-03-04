@@ -1,13 +1,8 @@
-{
-  inputs,
-  pkgs,
-  user,
-  ...
-}:
+{ pkgs, self, inputs, user, ... }:
 {
   imports = [
     ./brew.nix
-    ../../common/aerospace
+    self.darwinModules.default
   ];
   nix = {
     settings = {
@@ -47,12 +42,6 @@
     home = "/Users/${user}";
     shell = pkgs.fish;
     uid = 501;
-  };
-
-  virtualisation.podman = {
-    enable = true;
-    compose.enable = true;
-    dockerCompat = true;
   };
 
   system = {
