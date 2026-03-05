@@ -1,4 +1,14 @@
-{ pkgs, config, ... }:
+{
+  pkgs,
+  config,
+  lib,
+  profile,
+  ...
+}:
+let
+  inherit (lib.modules) mkIf mkMerge;
+in
+
 {
   imports = [
     ./starship.nix
@@ -19,17 +29,25 @@
           mkdir -p $dir
           cd $dir
         '';
-    } // (import ./functions.nix { inherit config; });
-
-    shellAbbrs = {
-      "lg" = "lazygit";
-    };
+    }
+    // (import ./functions.nix {
+      inherit
+        config
+        lib
+        pkgs
+        profile
+        ;
+    });
 
     shellAliases = {
       v = "nvim";
       l = "${pkgs.eza}/bin/eza -lahF --git --no-user --group-directories-first --color-scale";
       la = "${pkgs.eza}/bin/eza -lahF --git";
       cat = "${pkgs.bat}/bin/bat -pp";
+    };
+
+    shellAbbrs = mkIf (profile == "work") {
+      b = "./build.sh";
     };
 
     shellInit = # fish

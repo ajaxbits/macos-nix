@@ -1,19 +1,23 @@
 { pkgs, ... }:
+let
+  inherit (pkgs.lib.meta) getExe;
+  jj = getExe pkgs.jujutsu;
+  sd = getExe pkgs.sd;
+in
 {
   programs.starship = {
     enable = true;
     enableFishIntegration = true;
     enableZshIntegration = true;
     enableBashIntegration = true;
-    enableNushellIntegration = true;
     settings = {
       aws.disabled = true;
       custom = {
         jjstate = {
+          when = "${jj} --ignore-working-copy root";
           command = ''
-            ${pkgs.jujutsu}/bin/jj log -r@ -l1 --no-graph -T "" --stat | tail -n1 | awk '{print $1 "m", $4 "+", $6 "-"}'
+            ${jj} log -r@ -n1 --ignore-working-copy --no-graph -T "" --stat | tail -n1 | sd "(\d+) files? changed, (\d+) insertions?\(\+\), (\d+) deletions?\(-\)" ' ${1}m ${2}+ ${3}-' | ${sd} " 0." ""
           '';
-          detect_folders = [ ".jj" ];
         };
       };
     };

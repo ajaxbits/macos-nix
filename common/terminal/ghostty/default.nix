@@ -12,21 +12,25 @@
       font-family-bold = "Atkinson Hyperlegible Mono SemiBold"; # TODO: factor out one day
       font-family-bold-italic = "Atkinson Hyperlegible Mono SemiBold Italic"; # TODO: factor out one day
       font-size = 14;
-      theme = "GruvboxDark";
-      window-decoration = false;
-      window-vsync = false;
+      theme = "Gruvbox Dark";
+
+      window-vsync = true; # NOTE: Only supported on Darwin
 
       keybind = [
-        "cmd+h=previous_tab"
-        "cmd+l=next_tab"
+        "cmd+shift+backslash=new_split:right"
+        "cmd+shift+minus=new_split:down"
+
         "cmd+shift+l=goto_split:right"
         "cmd+shift+h=goto_split:left"
         "cmd+shift+k=goto_split:up"
         "cmd+shift+j=goto_split:down"
+
         "cmd+ctrl+l=resize_split:right,20"
         "cmd+ctrl+h=resize_split:left,20"
         "cmd+ctrl+k=resize_split:up,20"
         "cmd+ctrl+j=resize_split:down,20"
+
+        "global:cmd+shift+backquote=toggle_quick_terminal"
       ];
     };
   };
