@@ -13,8 +13,8 @@ in
     inherit (gitCfg) enable;
     settings = {
       user = {
-        name = gitCfg.userName;
-        email = gitCfg.userEmail;
+        name = gitCfg.settings.user.name;
+        email = gitCfg.settings.user.email;
       };
       ui = {
         command = "log-recent";

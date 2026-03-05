@@ -15,24 +15,26 @@ in
 {
   programs.git = {
     enable = true;
-    userName = identity.name;
-    userEmail = identity.email;
     lfs.enable = true;
-    extraConfig = {
+    settings = {
+      user.name = identity.name;
+      user.email = identity.email;
       init.defaultBranch = "main";
       pull.rebase = false;
     };
-    delta = {
-      enable = true;
-      options = {
-        decorations = {
-          commit-decoration-style = "bold yellow box ul";
-          file-decoration-style = "none";
-          file-style = "bold yellow ul";
-        };
-        features = "decorations";
-        whitespace-error-style = "22 reverse";
+  };
+
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
+    options = {
+      decorations = {
+        commit-decoration-style = "bold yellow box ul";
+        file-decoration-style = "none";
+        file-style = "bold yellow ul";
       };
+      features = "decorations";
+      whitespace-error-style = "22 reverse";
     };
   };
 }

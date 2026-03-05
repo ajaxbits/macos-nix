@@ -37,7 +37,6 @@
       gh
       git
       jujutsu
-      neofetch
       nix-output-monitor
       seventeenlands
       xh

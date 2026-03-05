@@ -45,23 +45,27 @@
           vcs = import ./common/vcs;
           zellij = import ./common/zellij;
           opencode = import ./common/ai/opencode;
-          default = { imports = [
-            self.homeManagerModules.fish
-            self.homeManagerModules.vcs
-            self.homeManagerModules.zellij
-            self.homeManagerModules.opencode
-          ]; };
+          default = {
+            imports = [
+              self.homeManagerModules.fish
+              self.homeManagerModules.vcs
+              self.homeManagerModules.zellij
+              self.homeManagerModules.opencode
+            ];
+          };
         };
 
         darwinModules = {
           aerospace = import ./common/aerospace;
           nix = import ./common/nix;
           podman = import ./common/podman;
-          default = { imports = [
-            ./common/aerospace
-            ./common/nix
-            ./common/podman
-          ]; };
+          default = {
+            imports = [
+              ./common/aerospace
+              ./common/nix
+              ./common/podman
+            ];
+          };
         };
       };
 
