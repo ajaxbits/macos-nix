@@ -13,7 +13,11 @@
     "${self}/common/terminal/ghostty"
   ];
 
-  programs.opencode.package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.opencode;
+  components.opencode = {
+    enable = true;
+    package = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.opencode;
+    kagiApiKeyFile = config.age.secrets.kagi_api_key.path;
+  };
 
   age = {
     identityPaths = [ "/Users/${user}/.ssh/bitwarden" ];
@@ -21,12 +25,6 @@
       kagi_api_key.file = ../../secrets/kagi_api_key.age;
     };
   };
-
-  programs.fish.interactiveShellInit = ''
-    if test -r ${config.age.secrets.kagi_api_key.path}
-      set -gx KAGI_API_KEY (string trim (cat ${config.age.secrets.kagi_api_key.path}))
-    end
-  '';
 
   home = {
     stateVersion = "22.05";
