@@ -16,7 +16,7 @@ in
         jjstate = {
           when = "${jj} --ignore-working-copy root";
           command = ''
-            ${jj} log -r@ -n1 --ignore-working-copy --no-graph -T "" --stat | tail -n1 | sd "(\d+) files? changed, (\d+) insertions?\(\+\), (\d+) deletions?\(-\)" ' ${1}m ${2}+ ${3}-' | ${sd} " 0." ""
+            ${jj} log -r@ -n1 --ignore-working-copy --no-graph -T "" --stat | tail -n1 | sd "(\d+) files? changed, (\d+) insertions?\(\+\), (\d+) deletions?\(-\)" ' ''${1}m ''${2}+ ''${3}-' | ${sd} " 0." ""
           '';
         };
       };
