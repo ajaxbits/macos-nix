@@ -10,6 +10,7 @@ Some information about the user's coding environment:
 - Text editor: nvim
 - Shell: fish
 - Non-standard bash commands available: rg, ast-grep (sg), gh, jq, fd
+- Web search: Use Kagi MCP for ALL web searching. Never use any other tool, such as Exa. Kagi has high-quality results and you have unlimited access, so search early and often.
 
 ### VCS rules
 
