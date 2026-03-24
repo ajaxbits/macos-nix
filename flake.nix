@@ -2,13 +2,11 @@
   description = "Macos Nix Machines";
 
   inputs = {
-    # Package sets
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # Meta
     parts.url = "github:hercules-ci/flake-parts";
+    import-tree.url = "github:vic/import-tree";
 
-    # System
     darwin = {
       url = "github:lnl7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -25,115 +23,8 @@
   };
 
   outputs =
-    {
-      self,
-      darwin,
-      parts,
-      ...
-    }@inputs:
-    parts.lib.mkFlake { inherit inputs; } {
-      imports = [
-        inputs.home-manager.flakeModules.home-manager
-      ];
-      systems = [
-        "aarch64-darwin"
-      ];
-
-      flake = {
-        homeManagerModules = {
-          fish = import ./common/fish;
-          vcs = import ./common/vcs;
-          zellij = import ./common/zellij;
-          opencode = import ./common/ai/opencode;
-          default = {
-            imports = [
-              self.homeManagerModules.fish
-              self.homeManagerModules.vcs
-              self.homeManagerModules.zellij
-              self.homeManagerModules.opencode
-            ];
-          };
-        };
-
-        darwinModules = {
-          aerospace = import ./common/aerospace;
-          nix = import ./common/nix;
-          podman = import ./common/podman;
-          default = {
-            imports = [
-              ./common/aerospace
-              ./common/nix
-              ./common/podman
-            ];
-          };
-        };
-      };
-
-      flake.darwinConfigurations =
-        let
-          inherit (inputs.darwin.lib) darwinSystem;
-          user = "ajax";
-          macbookAir = "Alexs-MacBook-Air";
-
-          # Configuration for `nixpkgs`
-          nixpkgs = {
-            config = {
-              allowBroken = true;
-              allowUnfree = true;
-            };
-            hostPlatform = "aarch64-darwin";
-            overlays = [ inputs.nur.overlays.default ];
-          };
-
-          specialArgs = {
-            inherit
-              inputs
-              self
-              user
-              ;
-
-            profile = "personal";
-            hostname = macbookAir;
-            system = nixpkgs.hostPlatform;
-          };
-        in
-        {
-          ${macbookAir} = darwinSystem {
-            inherit specialArgs;
-
-            modules = [
-              # Main `nix-darwin` config
-              ./hosts/aphrodite
-
-              # home-manager
-              inputs.home-manager.darwinModules.home-manager
-              {
-                inherit nixpkgs;
-                home-manager = {
-                  useGlobalPkgs = true;
-                  useUserPackages = true;
-                  extraSpecialArgs = specialArgs;
-                  backupFileExtension = "bak";
-
-                  users.${user} =
-                    { ... }:
-                    {
-                      imports = [ "${self}/hosts/aphrodite/home.nix" ];
-                    };
-                };
-              }
-
-              # secrets
-              inputs.agenix.darwinModules.default
-
-              #
-              {
-                environment.systemPackages = [ inputs.nvim.packages.aarch64-darwin.default ];
-              }
-            ];
-          };
-        };
-    };
+    inputs:
+    inputs.parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
 
   nixConfig = {
     extra-substituters = [
