@@ -1,5 +1,3 @@
-# Terminal emulator + multiplexer: ghostty + zellij (homeManager aspect)
-{ ... }:
 {
   flake.modules.homeManager.terminal =
     { pkgs, ... }:
@@ -41,9 +39,6 @@
 
       programs.zellij = {
         enable = true;
-        enableBashIntegration = true;
-        enableFishIntegration = true;
-        enableZshIntegration = true;
       };
 
       xdg.configFile."zellij/config.kdl".text = builtins.readFile ./terminal/zellij-config.kdl;
