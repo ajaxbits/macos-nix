@@ -1,4 +1,29 @@
 {
+  # Ghostty workspace in aerospace — terminal owns its own tiling integration
+  flake.modules.darwin.terminal = {
+    services.aerospace.settings =
+      let
+        mod = "alt";
+        workspace = {
+          name = "[T]erminal";
+          binding = "t";
+          appId = "com.mitchellh.ghostty";
+        };
+      in
+      {
+        mode.main.binding = {
+          "${mod}-${workspace.binding}" = "workspace ${workspace.name}";
+          "${mod}-shift-${workspace.binding}" = "move-node-to-workspace ${workspace.name}";
+        };
+        on-window-detected = [
+          {
+            "if".app-id = workspace.appId;
+            run = [ "move-node-to-workspace ${workspace.name}" ];
+          }
+        ];
+      };
+  };
+
   flake.modules.homeManager.terminal =
     { pkgs, ... }:
     {

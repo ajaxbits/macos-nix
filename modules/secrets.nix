@@ -1,4 +1,3 @@
-# Secrets management via agenix (darwin + homeManager)
 { inputs, ... }:
 let
   userName = "ajax";
@@ -9,7 +8,7 @@ in
   };
 
   flake.modules.homeManager.secrets =
-    { config, ... }:
+    { ... }:
     {
       imports = [ inputs.agenix.homeManagerModules.default ];
 

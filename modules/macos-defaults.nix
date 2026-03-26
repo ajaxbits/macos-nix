@@ -1,5 +1,3 @@
-# macOS system defaults: dock, finder, trackpad, keyboard
-{ ... }:
 {
   flake.modules.darwin.macos-defaults = {
     system = {

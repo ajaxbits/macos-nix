@@ -45,11 +45,6 @@
           binding = "s";
           apps = [ "com.tinyspeck.slackmacgap" ];
         };
-        terminal = {
-          name = "[T]erminal";
-          binding = "t";
-          apps = [ "com.mitchellh.ghostty" ];
-        };
       };
 
       workspacesWithDefaultValues = builtins.mapAttrs (
@@ -132,19 +127,19 @@
           "close-all-windows-but-current"
           "mode main"
         ];
-        alt-shift-h = [
+        "${mod}-shift-h" = [
           "join-with left"
           "mode main"
         ];
-        alt-shift-j = [
+        "${mod}-shift-j" = [
           "join-with down"
           "mode main"
         ];
-        alt-shift-k = [
+        "${mod}-shift-k" = [
           "join-with up"
           "mode main"
         ];
-        alt-shift-l = [
+        "${mod}-shift-l" = [
           "join-with right"
           "mode main"
         ];

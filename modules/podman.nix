@@ -1,5 +1,3 @@
-# Podman container engine (darwin aspect)
-{ ... }:
 {
   flake.modules.darwin.podman =
     { pkgs, lib, ... }:
@@ -21,7 +19,10 @@
         # docker compat: symlink podman -> docker
         (runCommand "${podman.pname}-docker-compat-${podman.version}"
           {
-            outputs = [ "out" "man" ];
+            outputs = [
+              "out"
+              "man"
+            ];
             inherit (podman) meta;
           }
           ''
