@@ -13,8 +13,8 @@ in
     inherit (gitCfg) enable;
     settings = {
       user = {
-        name = gitCfg.settings.user.name;
-        email = gitCfg.settings.user.email;
+        inherit (gitCfg.settings.user) name;
+        inherit (gitCfg.settings.user) email;
       };
       ui = {
         command = "log-recent";
@@ -29,13 +29,11 @@ in
       revset-aliases."recent()" = "committer_date(after:\"3 months ago\")";
 
       aliases = {
-        tug = [
+        a = [
           "bookmark"
-          "move"
-          "--from"
-          "closest_bookmark(@-)"
+          "advance"
           "--to"
-          "@-"
+          "bookmark-advance-to" # this is the default behavior. Idk why it isn't working.
         ];
         push = [
           "git"
@@ -48,6 +46,7 @@ in
           "commit"
           "--interactive"
         ];
+        d = [ "describe" ];
         e = [ "edit" ];
         i = [
           "git"
@@ -72,10 +71,26 @@ in
       };
       revset-aliases = {
         "closest_bookmark(to)" = "heads(::to & bookmarks())";
+        "closest_pushable(to)" = ''heads(::to & ~description(exact:"") & (~empty() | merges()))'';
+        "bookmark-advance-to" = "closest_pushable(@)"; # this is a special revest that `jj advance` looks at when deciding where to tug to
+      };
+      templates = {
+        draft_commit_description = "builtin_draft_commit_description_with_diff";
+        new_description = ''
+          if(parents.len() > 1, join(" ",
+            "Merge",
+            parents.skip(1).map(|p| bookmarks_or_hash(p)).join(", "),
+            "into",
+            bookmarks_or_hash(parents.first()),
+          ))
+        '';
       };
       template-aliases = {
         "format_short_change_id(id)" = "id.shortest()";
         "format_timestamp(timestamp)" = "timestamp.local().format('%Y-%m-%d %I:%M%P')";
+        "bookmarks_or_hash(c)" = ''
+          coalesce(c.bookmarks().map(|b| b.name()).join(", "), c.commit_id().short())
+        '';
       };
     };
   };
