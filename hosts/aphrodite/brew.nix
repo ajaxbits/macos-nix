@@ -26,7 +26,7 @@
       "rocket"
       "shottr"
       "steam"
-      "tailscale"
+      "tailscale-app"
       "talon"
       "tor-browser"
       "visual-studio-code"
