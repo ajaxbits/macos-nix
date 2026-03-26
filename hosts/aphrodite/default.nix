@@ -3,6 +3,7 @@
   self,
   inputs,
   user,
+  hostname,
   ...
 }:
 {
@@ -47,6 +48,8 @@
     shell = pkgs.fish;
     uid = 501;
   };
+
+  networking.hostName = hostname;
 
   system = {
     stateVersion = 5;
