@@ -43,6 +43,7 @@
       zoxide
     ];
   };
+  programs.git.signing.format = null; # because home.stateVersion < 25
 
   programs = {
     atuin = {
