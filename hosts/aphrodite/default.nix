@@ -1,4 +1,10 @@
-{ pkgs, self, inputs, user, ... }:
+{
+  pkgs,
+  self,
+  inputs,
+  user,
+  ...
+}:
 {
   imports = [
     ./brew.nix
@@ -11,9 +17,7 @@
         user
       ];
       trusted-substituters = [ "https://cache.garnix.io" ];
-      extra-substituters = [ "https://cache.lix.systems" ];
       trusted-public-keys = [
-        "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="
         "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
       ];
     };

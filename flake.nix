@@ -113,6 +113,7 @@
                   useGlobalPkgs = true;
                   useUserPackages = true;
                   extraSpecialArgs = specialArgs;
+                  backupFileExtension = "bak";
 
                   users.${user} =
                     { ... }:

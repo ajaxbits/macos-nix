@@ -8,7 +8,6 @@ in
       inherit (lixPackageSet)
         colmena
         nil
-        nix-direnv
         nix-eval-jobs
         nix-fast-build
         nixpkgs-review
