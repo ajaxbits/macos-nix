@@ -5,11 +5,9 @@
     { pkgs, ... }:
     {
       environment.systemPackages = with pkgs; [
-        attic-client
         dust
         eza
         fd
-        gron
         hck
         ripgrep
         sd
@@ -24,6 +22,8 @@
     { pkgs, ... }:
     {
       home.packages = with pkgs; [
+        anki-bin
+        attic-client
         bat
         coreutils
         curl
