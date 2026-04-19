@@ -1,4 +1,4 @@
-# User identity, shared across darwin and home-manager
+# Secretive, a program to store ssh keys in the TPM
 let
   userName = "ajax";
 in

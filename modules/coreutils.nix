@@ -1,13 +1,14 @@
-# System and user packages
+# The basic utils I always need
 { inputs, ... }:
 {
-  flake.modules.darwin.packages =
+  flake.modules.darwin.coreutils =
     { pkgs, ... }:
     {
       environment.systemPackages = with pkgs; [
+        curl
         dust
-        eza
         fd
+        git
         hck
         ripgrep
         sd
@@ -18,19 +19,14 @@
       ];
     };
 
-  flake.modules.homeManager.packages =
+  flake.modules.homeManager.coreutils =
     { pkgs, ... }:
     {
       home.packages = with pkgs; [
-        anki-bin
-        attic-client
         bat
-        coreutils
-        curl
         entr
         fx
         gh
-        git
         jujutsu
         nix-output-monitor
         seventeenlands
@@ -52,6 +48,28 @@
         eza.enable = true;
         jq.enable = true;
         lazygit.enable = true;
+        fzf = {
+          enable = true;
+          enableFishIntegration = true;
+          enableBashIntegration = true;
+          colors = {
+            bg = "#282828";
+            "bg+" = "#3c3836";
+            fg = "#ebdbb2";
+            "fg+" = "#d4d4d4";
+            hl = "#fabd2f";
+            "hl+" = "#fabd2f";
+
+            info = "#83a598";
+            prompt = "#bdae93";
+            spinner = "#fabd2f";
+            pointer = "#83a598";
+            marker = "#fe8019";
+            header = "#665c54";
+          };
+
+          fileWidgetCommand = "fd --type f";
+        };
       };
     };
 }
