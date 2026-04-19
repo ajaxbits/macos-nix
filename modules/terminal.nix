@@ -3,6 +3,7 @@
   flake.modules.darwin.terminal = {
     services.aerospace.settings =
       let
+        mod = "alt";
         workspace = {
           name = "[T]erminal";
           binding = "t";
@@ -10,6 +11,10 @@
         };
       in
       {
+        mode.main.binding = {
+          "${mod}-${workspace.binding}" = "workspace ${workspace.name}";
+          "${mod}-shift-${workspace.binding}" = "move-node-to-workspace ${workspace.name}";
+        };
         on-window-detected = [
           {
             "if".app-id = workspace.appId;
