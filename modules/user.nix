@@ -23,7 +23,6 @@ in
 
       environment.variables = {
         EDITOR = "nvim";
-        SSH_AUTH_SOCK = "/Users/${userName}/.bitwarden-ssh-agent.sock";
       };
     };
 
