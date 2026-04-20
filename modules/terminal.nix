@@ -41,7 +41,7 @@
           font-family = "Atkinson Hyperlegible Mono Light";
           font-family-bold = "Atkinson Hyperlegible Mono SemiBold";
           font-family-bold-italic = "Atkinson Hyperlegible Mono SemiBold Italic";
-          font-size = 14;
+          font-size = 13;
           theme = "Gruvbox Dark";
 
           window-vsync = true;
@@ -64,11 +64,5 @@
           ];
         };
       };
-
-      programs.zellij = {
-        enable = true;
-      };
-
-      xdg.configFile."zellij/config.kdl".text = builtins.readFile ./terminal/zellij-config.kdl;
     };
 }
