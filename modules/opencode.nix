@@ -21,11 +21,13 @@
       programs.opencode = {
         enable = true;
         package = pkgs.opencode;
-        rules = ./opencode/AGENTS.md;
+        context = ./opencode/AGENTS.md;
         enableMcpIntegration = true;
         settings = {
-          theme = "system";
           permission.websearch = "deny";
+        };
+        tui = {
+          theme = "system";
         };
       };
 
