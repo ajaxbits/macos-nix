@@ -32,8 +32,8 @@ in
         "shottr"
         "steam"
         "tailscale-app"
-        "talon"
-        "tor-browser"
+        # "talon"
+        # "tor-browser"
         "visual-studio-code"
         "vlc"
       ];
