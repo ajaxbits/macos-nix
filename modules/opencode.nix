@@ -3,7 +3,7 @@
 {
   # Add llm-agents overlay so pkgs.opencode comes from numtide
   flake.modules.darwin.opencode = {
-    nixpkgs.overlays = [ inputs.llm-agents.overlays.default ];
+    nixpkgs.overlays = [ inputs.llm-agents.overlays.shared-nixpkgs ];
   };
 
   flake.modules.homeManager.opencode =

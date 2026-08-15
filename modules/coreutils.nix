@@ -68,7 +68,8 @@
             header = "#665c54";
           };
 
-          fileWidgetCommand = "fd --type f";
+          fileWidget.command = "fd --type f";
+          historyWidget.command = "";
         };
       };
     };
