@@ -81,6 +81,7 @@ in
 
       programs.zsh.enable = true;
       programs.fish.enable = true;
+      environment.shells = [ pkgs.fish ];
 
       users.knownUsers = lib.mkIf host.manageUser [ host.userName ];
       users.users = lib.mkIf host.manageUser {
@@ -105,14 +106,14 @@ in
     };
 
   flake.modules.homeManager.user =
-    { config, ... }:
+    { config, lib, ... }:
     let
       host = config.macosNix.host;
     in
     {
       home = {
-        username = host.userName;
-        homeDirectory = host.homeDirectory;
+        username = lib.mkForce host.userName;
+        homeDirectory = lib.mkForce host.homeDirectory;
         stateVersion = host.homeStateVersion;
       };
     };
