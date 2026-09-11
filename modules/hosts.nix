@@ -21,6 +21,8 @@ let
     homeStateVersion = "22.05";
     gitName = "Alex Jackson";
     gitEmail = "git@ajaxbits.com";
+    # Retained until this device is enrolled with a Secure Enclave recipient.
+    ageIdentityPath = "/Users/ajax/.ssh/bitwarden";
     flakeDirectory = "/Users/ajax/code/macos-nix";
     synthetic = false;
   };
@@ -42,6 +44,7 @@ let
       host.hostName
       host.userName
       host.homeDirectory
+      host.ageIdentityPath
       host.flakeDirectory
     ];
 

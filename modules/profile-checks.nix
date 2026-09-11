@@ -41,6 +41,7 @@
           homeStateVersion = "22.05";
           gitName = "Synthetic ${profile}";
           gitEmail = "${userName}@example.invalid";
+          ageIdentityPath = "/Users/${userName}/Library/Application Support/agenix/identity.txt";
           flakeDirectory = "/fixture/${profile} checkout with spaces";
           synthetic = true;
         };
@@ -102,9 +103,15 @@
         "maven"
         "mpv"
       ];
-      workHasPersonalSecret = workHome ? age && workHome.age.secrets ? kagi_api_key;
+      personalHasKagi = personalHome.age.secrets ? kagi_api_key;
+      workHasKagi = workHome.age.secrets ? kagi_api_key;
       workHasPersonalOpenCode = workHome.programs ? opencode && workHome.programs.opencode.enable;
       workHasDockerCompat = lib.any (name: lib.hasInfix "docker-compat" name) workSystemPackages;
+      hasOpenCodeCoordinator =
+        home:
+        lib.any (
+          name: lib.hasInfix "opencode" (lib.toLower name) || lib.hasInfix "coordinator" (lib.toLower name)
+        ) (builtins.attrNames home.launchd.agents);
 
       invalidWork = builtins.tryEval (
         let
@@ -148,6 +155,9 @@
         "zsh"
       ];
       expectedPersonalHomePackages = builtins.sort builtins.lessThan [
+        "age"
+        "age-plugin-se"
+        "agenix"
         "atuin"
         "bat"
         "delta"
@@ -305,10 +315,24 @@
         }
         {
           assertion =
-            !workHasPersonalSecret
+            personalHasKagi
+            && workHasKagi
             && !workHasPersonalOpenCode
-            && (!(workHome ? age) || !(lib.elem "/Users/ajax/.ssh/bitwarden" workHome.age.identityPaths));
-          message = "personal OpenCode or secret configuration entered work";
+            && workHome.age.identityPaths == [ workHost.ageIdentityPath ]
+            && lib.elem "age-plugin-se" personalHomePackages
+            && lib.elem "age-plugin-se" workHomePackages
+            && lib.elem "agenix" personalHomePackages
+            && lib.elem "agenix" workHomePackages
+            && !(lib.elem "/Users/ajax/.ssh/bitwarden" workHome.age.identityPaths);
+          message = "shared Kagi or profile-specific OpenCode/identity boundaries are incorrect";
+        }
+        {
+          assertion =
+            !(hasOpenCodeCoordinator personalHome)
+            && !(hasOpenCodeCoordinator workHome)
+            && builtins.attrNames personalHome.launchd.agents == [ "activate-agenix" ]
+            && builtins.attrNames workHome.launchd.agents == [ "activate-agenix" ];
+          message = "the age integration introduced an unapproved OpenCode coordinator";
         }
         {
           assertion =

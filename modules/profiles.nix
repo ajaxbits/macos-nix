@@ -12,6 +12,7 @@
       aerospace
       terminal
       secretive
+      secrets
     ];
   };
 
@@ -22,7 +23,6 @@
       ebooks
       podman
       opencode
-      secrets
     ];
   };
 
@@ -42,6 +42,8 @@
       fish
       terminal
       vcs
+      secrets
+      shared-secrets
     ];
   };
 
@@ -50,7 +52,6 @@
       foundation
       coreutils-personal
       opencode
-      secrets
     ];
   };
 

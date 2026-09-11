@@ -31,6 +31,12 @@ let
             homeStateVersion = mkOption { type = types.str; };
             gitName = mkOption { type = types.str; };
             gitEmail = mkOption { type = types.str; };
+            ageIdentityPath = mkOption {
+              type = types.addCheck types.str (
+                path: lib.hasPrefix "/" path && !(lib.hasPrefix "/nix/store/" path)
+              );
+              description = "Absolute runtime age identity path outside the Nix store";
+            };
             flakeDirectory = mkOption { type = types.str; };
             synthetic = mkOption {
               type = types.bool;

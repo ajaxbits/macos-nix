@@ -170,9 +170,10 @@ The work profile is not ready to deploy. It intentionally lacks:
   the follow-on implementation.
 - Nix-managed OpenCode2 with writable configuration in both profiles and the
   work-only Upside marketplace bridge.
-- Production plugin-aware agenix, Secure Enclave identity enrollment, shared Kagi
-  recipients, work credential ciphertext, recovery custody, retention policy,
-  and a single secret-dependent startup coordinator.
+- Secure Enclave identity enrollment, Kagi recipient rekeying, work credential
+  ciphertext, recovery custody, and plaintext retention policy. Plugin-aware
+  agenix is implemented in the follow-on production age change; no OpenCode
+  startup coordinator was approved or added.
 - Persistent fresh-login/reboot validation with dummy credentials.
 - The final new-Mac bootstrap and explicitly reviewed first switch.
 
