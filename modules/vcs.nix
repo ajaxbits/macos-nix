@@ -1,23 +1,15 @@
 # Version control: git + jujutsu (homeManager aspect)
 { ... }:
-let
-  profile = "personal";
-  identities = {
-    personal = {
-      name = "Alex Jackson";
-      email = "git" + "@" + "ajaxbits" + "." + "com";
-    };
-    work = {
-      name = "FIXME";
-      email = "FIXME@work.example.com";
-    };
-  };
-  identity = identities.${profile};
-in
 {
   flake.modules.homeManager.vcs =
-    { config, pkgs, lib, ... }:
+    {
+      config,
+      pkgs,
+      lib,
+      ...
+    }:
     let
+      host = config.macosNix.host;
       gitCfg = config.programs.git;
       jj = lib.getExe pkgs.jujutsu;
     in
@@ -27,8 +19,8 @@ in
         lfs.enable = true;
         signing.format = null; # because home.stateVersion < 25
         settings = {
-          user.name = identity.name;
-          user.email = identity.email;
+          user.name = host.gitName;
+          user.email = host.gitEmail;
           init.defaultBranch = "main";
           pull.rebase = false;
         };
@@ -61,22 +53,50 @@ in
             pager = "${pkgs.delta}/bin/delta --side-by-side";
           };
           aliases = {
-            log-recent = [ "log" "-r" "default() & recent()" ];
+            log-recent = [
+              "log"
+              "-r"
+              "default() & recent()"
+            ];
             a = [
-              "bookmark" "advance" "--to"
+              "bookmark"
+              "advance"
+              "--to"
               "bookmark-advance-to" # this is the default behavior. Idk why it isn't working.
             ];
-            push = [ "git" "push" "--revisions" "closest_bookmark(@-)" ];
+            push = [
+              "git"
+              "push"
+              "--revisions"
+              "closest_bookmark(@-)"
+            ];
             c = [ "commit" ];
-            ci = [ "commit" "--interactive" ];
+            ci = [
+              "commit"
+              "--interactive"
+            ];
             d = [ "describe" ];
             e = [ "edit" ];
-            i = [ "git" "init" "--colocate" ];
-            nb = [ "bookmark" "create" "-r @-" ];
-            pull = [ "git" "fetch" ];
+            i = [
+              "git"
+              "init"
+              "--colocate"
+            ];
+            nb = [
+              "bookmark"
+              "create"
+              "-r @-"
+            ];
+            pull = [
+              "git"
+              "fetch"
+            ];
             r = [ "rebase" ];
             s = [ "squash" ];
-            si = [ "squash" "--interactive" ];
+            si = [
+              "squash"
+              "--interactive"
+            ];
           };
           revset-aliases = {
             "recent()" = "committer_date(after:\"3 months ago\")";
@@ -109,5 +129,13 @@ in
         ${jj} git fetch
         ${jj} new trunk()
       '';
+
+      assertions = [
+        {
+          assertion =
+            host.synthetic || (host.gitName != "FIXME" && host.gitEmail != "FIXME@work.example.com");
+          message = "macosNix.host must provide a non-placeholder Git identity";
+        }
+      ];
     };
 }

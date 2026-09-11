@@ -29,7 +29,6 @@
         gh
         jujutsu
         nix-output-monitor
-        seventeenlands
         xh
         zoxide
       ];
@@ -72,5 +71,11 @@
           historyWidget.command = "";
         };
       };
+    };
+
+  flake.modules.homeManager.coreutils-personal =
+    { pkgs, ... }:
+    {
+      home.packages = [ pkgs.seventeenlands ];
     };
 }

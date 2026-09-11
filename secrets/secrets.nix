@@ -3,6 +3,4 @@ let
 in
 {
   "kagi_api_key.age".publicKeys = [ ajax ];
-  "syncthing/cert.age".publicKeys = [ ajax ];
-  "syncthing/key.age".publicKeys = [ ajax ];
 }

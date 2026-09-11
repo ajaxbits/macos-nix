@@ -1,16 +1,16 @@
-# Secretive, a program to store ssh keys in the TPM
-let
-  userName = "ajax";
-in
+# Secretive, a program to store SSH keys in the Secure Enclave.
 {
   flake.modules.darwin.secretive =
-    { pkgs, ... }:
+    { config, pkgs, ... }:
+    let
+      socket = "${config.macosNix.host.homeDirectory}/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh";
+    in
     {
       environment.systemPackages = [ pkgs.secretive ];
       programs.ssh.extraConfig = ''
         Host *
-        	IdentityAgent /Users/${userName}/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh
+          IdentityAgent ${socket}
       '';
-      environment.variables.SSH_AUTH_SOCK = "/Users/${userName}/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh";
+      environment.variables.SSH_AUTH_SOCK = socket;
     };
 }

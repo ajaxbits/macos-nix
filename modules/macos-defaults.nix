@@ -1,7 +1,7 @@
 {
-  flake.modules.darwin.macos-defaults = {
+  flake.modules.darwin.macos-defaults = { config, ... }: {
     system = {
-      stateVersion = 5;
+      stateVersion = config.macosNix.host.darwinStateVersion;
       defaults = {
         finder = {
           AppleShowAllExtensions = true;
