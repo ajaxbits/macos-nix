@@ -19,10 +19,12 @@ let
     nixTrustedUser = true;
     darwinStateVersion = 5;
     homeStateVersion = "22.05";
+    homeManagerBackupExtension = "bak";
     gitName = "Alex Jackson";
     gitEmail = "git@ajaxbits.com";
     # Retained until this device is enrolled with a Secure Enclave recipient.
     ageIdentityPath = "/Users/ajax/.ssh/bitwarden";
+    ageIdentityType = "legacy-ssh";
     flakeDirectory = "/Users/ajax/code/macos-nix";
     synthetic = false;
   };
@@ -76,7 +78,7 @@ let
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
-            backupFileExtension = "bak";
+            backupFileExtension = host.homeManagerBackupExtension;
             users.${host.userName}.imports = [
               { macosNix.host = host; }
               homeProfile
@@ -91,8 +93,13 @@ in
     type = lib.types.raw;
     readOnly = true;
   };
+  options.macosNix.hosts = lib.mkOption {
+    type = lib.types.raw;
+    readOnly = true;
+  };
 
   config = {
+    macosNix.hosts = hosts;
     macosNix.mkDarwinConfiguration = mkDarwinConfiguration;
     flake.darwinConfigurations = builtins.mapAttrs (_: mkDarwinConfiguration) hosts;
   };

@@ -39,9 +39,11 @@
           nixTrustedUser = true;
           darwinStateVersion = 5;
           homeStateVersion = "22.05";
+          homeManagerBackupExtension = if profile == "personal" then "bak" else null;
           gitName = "Synthetic ${profile}";
           gitEmail = "${userName}@example.invalid";
           ageIdentityPath = "/Users/${userName}/Library/Application Support/agenix/identity.txt";
+          ageIdentityType = "secure-enclave";
           flakeDirectory = "/fixture/${profile} checkout with spaces";
           synthetic = true;
         };

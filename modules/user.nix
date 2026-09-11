@@ -29,6 +29,10 @@ let
             nixTrustedUser = mkOption { type = types.bool; };
             darwinStateVersion = mkOption { type = types.int; };
             homeStateVersion = mkOption { type = types.str; };
+            homeManagerBackupExtension = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+            };
             gitName = mkOption { type = types.str; };
             gitEmail = mkOption { type = types.str; };
             ageIdentityPath = mkOption {
@@ -36,6 +40,12 @@ let
                 path: lib.hasPrefix "/" path && !(lib.hasPrefix "/nix/store/" path)
               );
               description = "Absolute runtime age identity path outside the Nix store";
+            };
+            ageIdentityType = mkOption {
+              type = types.enum [
+                "legacy-ssh"
+                "secure-enclave"
+              ];
             };
             flakeDirectory = mkOption { type = types.str; };
             synthetic = mkOption {
