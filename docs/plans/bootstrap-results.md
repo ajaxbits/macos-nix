@@ -8,7 +8,7 @@ The flake now exposes `apps.aarch64-darwin.bootstrap` and
 - `--check`: read-only machine and host readiness.
 - `--prepare-enrollment`: confirmed unattended Secure Enclave key generation and
   public-recipient enrollment instructions.
-- `--apply`: exact-revision checkout, secret readiness, platform prerequisites,
+- `--apply`: rsynced source validation, secret readiness, platform prerequisites,
   build, privileged activation check, final confirmation, switch and verification.
 
 The packaged application supplies Bash, Git, jq, Lix, plugin-aware agenix,
@@ -26,7 +26,7 @@ Homebrew itself and casks remain moving Homebrew-managed software.
 
 - Bare invocation never mutates the machine.
 - Unknown/mismatched hosts, account facts, console user, home, UID, architecture,
-  dirty checkout, changed revision and non-immutable source revisions stop safely.
+  and invalid source directories stop safely.
 - The real work host must exist in reviewed metadata; none is invented.
 - Existing nix-darwin requires explicit migration opt-in.
 - Alternate/invalid Homebrew installations are not overwritten.
@@ -36,8 +36,8 @@ Homebrew itself and casks remain moving Homebrew-managed software.
   not a fixed list in the shell script.
 - Secret-readiness plaintext uses a private temporary directory with exit/signal
   cleanup and is never logged.
-- Build, privileged activation check and switch use the same immutable GitHub
-  revision. The durable checkout is revalidated before privilege escalation.
+- Build, privileged activation check and switch use the same immutable Nix store
+  snapshot archived from the rsynced directory.
 - Work hosts use no automatic Home Manager backup suffix; collisions fail the
   activation check for explicit review.
 - Build/check/switch/verification failures record distinct checkpoint phases.
@@ -53,7 +53,7 @@ The test suite uses only stubs and temporary files. It covers:
 - Explicit enrollment, immutable revision enforcement and private checkpoints.
 - Existing identity permissions and active console-account validation.
 - Existing nix-darwin rejection without explicit migration review.
-- Dirty/mismatched checkouts and wrong secret recipient failure.
+- Invalid source directories and wrong secret recipient failure.
 - Missing Command Line Tools pause/resume.
 - Alternate Homebrew rejection and pinned installer execution after `sudo -v`.
 - Failed build preventing sudo.
@@ -75,11 +75,10 @@ configuration, checkout clone, or system switch was performed by these tests.
 
 ## External Gate
 
-The repository currently has no real work host output. Before live use, add and
-review the new Mac's output name, hostname, username, home, UID/account policy,
-work Git identity, `secure-enclave` identity path, non-destructive Homebrew policy,
-and complete work profile. Publish that commit, then run bootstrap by its full
-40-character revision as documented in `docs/bootstrap.md`.
+The work host `K1H96QD74C` is registered with its real account facts and can run
+readiness, enrollment, and the initial foundation switch. Enroll/rekey its secrets,
+rsync the reviewed directory to the new Mac, and run it locally as documented in
+`docs/bootstrap.md`.
 
 The first live run remains an explicitly confirmed operation. Software simulation
 does not prove MDM timing, Apple installer behavior, actual Secure Enclave access,

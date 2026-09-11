@@ -52,6 +52,10 @@ let
               type = types.bool;
               default = false;
             };
+            deploymentReady = mkOption {
+              type = types.bool;
+              default = false;
+            };
           };
         };
       };

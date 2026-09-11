@@ -7,7 +7,6 @@ trap 'rm -rf -- "$root"' EXIT
 mkdir -p "$root/bin" "$root/home/private" "$root/checkout/.git" "$root/checkout/secrets" "$root/system/bin"
 chmod 0700 "$root/home/private"
 
-revision=0123456789abcdef0123456789abcdef01234567
 cat > "$root/hosts.json" <<EOF
 {
   "TestWork": {
@@ -20,6 +19,7 @@ cat > "$root/hosts.json" <<EOF
     "uid": 777,
     "ageIdentityPath": "$root/home/private/identity.txt",
     "ageIdentityType": "secure-enclave",
+    "deploymentReady": true,
     "flakeDirectory": "$root/checkout",
     "secretFiles": ["kagi_api_key.age"]
   }
@@ -71,18 +71,6 @@ else
   exit 1
 fi
 EOF
-cat > "$root/bin/git" <<EOF
-#!/bin/bash
-set -euo pipefail
-if test "\$1" = -C; then
-  shift 2
-fi
-case "\$1" in
-  status) test "\${GIT_DIRTY:-0}" = 0 || echo ' M changed' ;;
-  rev-parse) echo "\${GIT_REV_OVERRIDE:-$revision}" ;;
-  *) echo "unexpected git call: \$*" >&2; exit 1 ;;
-esac
-EOF
 cat > "$root/bin/agenix" <<'EOF'
 #!/bin/bash
 test "${AGENIX_FAIL:-0}" = 0 || exit 12
@@ -109,7 +97,15 @@ if test "$1" = --version; then
   exit 0
 fi
 printf '%s\n' "$*" >> "$TEST_ROOT/nix.calls"
+if test "$1" = flake && test "$2" = archive; then
+  printf '{"path":"%s"}\n' "$TEST_ROOT/archived-source"
+  exit 0
+fi
 if test "$1" = flake && test "$2" = check; then
+  exit 0
+fi
+if test "$1" = hash && test "$2" = path; then
+  echo sha256-bootstrap-test
   exit 0
 fi
 if test "$1" = build; then
@@ -167,17 +163,15 @@ BREW
 chmod +x "$root/bin/brew"
 EOF
 chmod +x "$root/bin"/* "$root/homebrew-installer"
-mkdir "$root/built-system"
+mkdir "$root/built-system" "$root/archived-source"
 printf 'encrypted fixture\n' > "$root/checkout/secrets/kagi_api_key.age"
 printf '{}\n' > "$root/checkout/secrets/secrets.nix"
+printf '{}\n' > "$root/checkout/flake.nix"
 
 export HOME="$root/home"
 export TEST_ROOT="$root"
 export BOOTSTRAP_HOSTS_FILE="$root/hosts.json"
-export BOOTSTRAP_SOURCE_REV="$revision"
-export BOOTSTRAP_REPO_URL=https://example.invalid/macos-nix.git
 export NIX="$root/bin/nix"
-export GIT="$root/bin/git"
 export AGENIX="$root/bin/agenix"
 export AGE_PLUGIN_SE="$root/bin/age-plugin-se"
 export AGENIX_SE_KEYGEN="$root/bin/keygen"
@@ -217,12 +211,6 @@ if grep -q 'device identity' "$state"; then
   exit 1
 fi
 
-# Enrollment mutations require a full immutable source revision.
-if BOOTSTRAP_SOURCE_REV=dirty "$driver" --prepare-enrollment --host TestWork >/dev/null 2>&1; then
-  echo "uncommitted enrollment source was accepted" >&2
-  exit 1
-fi
-
 # Existing identities must remain private.
 chmod 0644 "$root/home/private/identity.txt"
 if "$driver" --prepare-enrollment --host TestWork >/dev/null 2>&1; then
@@ -244,17 +232,6 @@ if CLT_READY=1 BREW="$root/missing-brew" "$driver" --apply --host TestWork --che
   exit 1
 fi
 rm -f "$SYSTEM_DARWIN_REBUILD"
-
-# Dirty and revision-mismatched checkouts are preserved and rejected.
-if GIT_DIRTY=1 CLT_READY=1 BREW="$root/missing-brew" "$driver" --apply --host TestWork --checkout "$root/checkout" >/dev/null 2>&1; then
-  echo "dirty checkout was accepted" >&2
-  exit 1
-fi
-if GIT_REV_OVERRIDE=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa CLT_READY=1 BREW="$root/missing-brew" \
-  "$driver" --apply --host TestWork --checkout "$root/checkout" >/dev/null 2>&1; then
-  echo "mismatched checkout revision was accepted" >&2
-  exit 1
-fi
 
 # Wrong/missing recipient blocks prerequisites and switching.
 if AGENIX_FAIL=1 CLT_READY=1 BREW="$root/missing-brew" "$driver" --apply --host TestWork --checkout "$root/checkout" >/dev/null 2>&1; then
@@ -322,7 +299,7 @@ rm -f "$SYSTEM_DARWIN_REBUILD" "$SYSTEM_PROFILE"
 
 # Ready path asks for final confirmation, switches the exact host, and verifies Lix.
 printf 'yes\nyes\n' | CLT_READY=1 BREW="$brew" "$driver" --apply --host TestWork --checkout "$root/checkout"
-grep -F "$root/bin/darwin-rebuild switch --no-write-lock-file --flake github:ajaxbits/macos-nix/$revision#TestWork" "$root/sudo.args"
+grep -F "$root/bin/darwin-rebuild switch --no-write-lock-file --flake $root/archived-source#TestWork" "$root/sudo.args"
 test "$(jq -r .phase "$state")" = verified
 
 # A declined final confirmation may run the approved check, but never switch.

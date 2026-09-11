@@ -3,10 +3,7 @@ set -euo pipefail
 umask 077
 
 HOSTS_FILE=${BOOTSTRAP_HOSTS_FILE:?BOOTSTRAP_HOSTS_FILE is required}
-SOURCE_REV=${BOOTSTRAP_SOURCE_REV:?BOOTSTRAP_SOURCE_REV is required}
-REPO_URL=${BOOTSTRAP_REPO_URL:?BOOTSTRAP_REPO_URL is required}
 NIX=${NIX:?NIX is required}
-GIT=${GIT:?GIT is required}
 AGENIX=${AGENIX:?AGENIX is required}
 AGE_PLUGIN_SE=${AGE_PLUGIN_SE:?AGE_PLUGIN_SE is required}
 AGENIX_SE_KEYGEN=${AGENIX_SE_KEYGEN:?AGENIX_SE_KEYGEN is required}
@@ -40,11 +37,11 @@ Modes:
   --apply               Verify enrollment and prerequisites, build the reviewed
                         configuration, ask for confirmation, and perform first switch.
 
-Run from a full reviewed revision, for example:
-  nix run github:ajaxbits/macos-nix/REV#bootstrap -- --check --host NAME
+Run from the rsynced repository directory, for example:
+  nix run 'path:.#bootstrap' -- --check --host NAME
 
-The script is resumable. It never overwrites an identity, changes a dirty checkout,
-or silently substitutes another host/profile.
+The script is resumable. It never overwrites an identity or silently substitutes
+another host/profile. Nix archives one immutable source snapshot before building.
 EOF
 }
 
@@ -127,6 +124,7 @@ machine_hostname=$(host_value '.hostName')
 system=$(host_value '.system')
 identity_path=$(host_value '.ageIdentityPath')
 identity_type=$(host_value '.ageIdentityType')
+deployment_ready=$(host_value '.deploymentReady')
 
 if test -n "$requested_profile" && test "$requested_profile" != "$profile"; then
   die "host $host_name selects profile $profile, not $requested_profile"
@@ -140,6 +138,7 @@ state_dir="$home_directory/Library/Application Support/macos-nix-bootstrap"
 state_file="$state_dir/state.json"
 lock_dir="$state_dir/run.lock"
 secret_scratch=
+source_path=
 lock_active=0
 
 cleanup_runtime() {
@@ -153,10 +152,6 @@ cleanup_runtime() {
   exit "$status"
 }
 trap cleanup_runtime EXIT INT TERM
-
-require_immutable_revision() {
-  [[ "$SOURCE_REV" =~ ^[0-9a-f]{40}$ ]] || die "this operation must run from a full immutable Git revision, got: $SOURCE_REV"
-}
 
 validate_homebrew() {
   test -x "$BREW" || return 1
@@ -198,6 +193,12 @@ preflight() {
   else
     note "age identity is not yet present"
   fi
+  if test "$deployment_ready" = true; then
+    ok "host is marked deployment-ready"
+  else
+    note "host is registered for enrollment but is not deployment-ready"
+    test "$mode" != --apply || die "work profile is incomplete; apply is disabled until its host is marked deployment-ready"
+  fi
   if test -x "$SYSTEM_DARWIN_REBUILD"; then
     note "nix-darwin is already installed; review whether this is a migration"
     if test "$mode" = --apply && test "$allow_existing_darwin" != 1; then
@@ -214,13 +215,13 @@ write_state() {
   chmod 0700 "$state_dir"
   jq -n \
     --arg host "$host_name" \
-    --arg revision "$SOURCE_REV" \
     --arg phase "$phase" \
     --arg identity "$identity_path" \
     --arg recipient "$recipient" \
     --arg checkout "$checkout" \
+    --arg sourcePath "$source_path" \
     --arg updatedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-    '{host:$host,revision:$revision,phase:$phase,identityPath:$identity,publicRecipient:$recipient,checkout:$checkout,updatedAt:$updatedAt}' \
+    '{host:$host,phase:$phase,identityPath:$identity,publicRecipient:$recipient,checkout:$checkout,sourcePath:$sourcePath,updatedAt:$updatedAt}' \
     > "$state_file.tmp"
   chmod 0600 "$state_file.tmp"
   mv "$state_file.tmp" "$state_file"
@@ -255,15 +256,14 @@ On an already authorized device or with the recovery custodian:
   1. Add this recipient to Kagi and each intended work-secret rule.
   2. Rekey those .age files with the authorized identity.
   3. Add/review the real host record and encrypted files.
-  4. Commit and publish that revision.
+  4. Rsync the updated repository directory back to this Mac.
 
-Then rerun bootstrap from that exact new revision. Do not copy this Mac's private
+Then rerun bootstrap from the updated local directory. Do not copy this Mac's private
 identity or a recovery private key to another device.
 EOF
 }
 
 prepare_enrollment() {
-  require_immutable_revision
   test "$identity_type" = secure-enclave || die "host uses $identity_type identity; Secure Enclave generation is not applicable"
   step "Preparing unattended Secure Enclave identity"
   if test -e "$identity_path"; then
@@ -295,25 +295,16 @@ acquire_lock() {
     mkdir "$lock_dir" || die "could not acquire bootstrap lock"
   fi
   lock_active=1
-  jq -n --arg host "$host_name" --arg revision "$SOURCE_REV" --arg pid "$$" \
+  jq -n --arg host "$host_name" --arg pid "$$" \
     --arg startedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-    '{host:$host,revision:$revision,pid:$pid,startedAt:$startedAt}' > "$lock_dir/run.json"
+    '{host:$host,pid:$pid,startedAt:$startedAt}' > "$lock_dir/run.json"
 }
 
 ensure_checkout() {
-  step "Preparing reviewed source checkout"
-  require_immutable_revision
-  if test ! -e "$checkout"; then
-    confirm "Clone $REPO_URL at $SOURCE_REV into $checkout?"
-    mkdir -p "$(dirname "$checkout")"
-    "$GIT" clone --no-checkout "$REPO_URL" "$checkout"
-    "$GIT" -C "$checkout" checkout --detach "$SOURCE_REV"
-  else
-    test -d "$checkout/.git" || die "existing checkout is not a Git checkout: $checkout"
-    test -z "$("$GIT" -C "$checkout" status --porcelain)" || die "existing checkout is dirty; preserve it and choose another path"
-    test "$("$GIT" -C "$checkout" rev-parse HEAD)" = "$SOURCE_REV" || die "checkout revision differs from bootstrap revision"
-  fi
-  ok "checkout matches $SOURCE_REV"
+  step "Checking the rsynced source directory"
+  test -d "$checkout" || die "source directory does not exist: $checkout"
+  test -f "$checkout/flake.nix" || die "source directory does not contain flake.nix: $checkout"
+  ok "using source directory $checkout"
 }
 
 check_secret_readiness() {
@@ -336,7 +327,7 @@ check_secret_readiness() {
   done < <(jq -r '.secretFiles[]' <<<"$host_json")
   rm -rf "$secret_scratch"
   secret_scratch=
-  test "$secret_failure" = 0 || die "recipient enrollment is incomplete; rekey on an authorized device and resume from its revision"
+  test "$secret_failure" = 0 || die "recipient enrollment is incomplete; rekey on an authorized device, rsync the updated directory, and resume"
 }
 
 ensure_clt() {
@@ -366,21 +357,21 @@ ensure_homebrew() {
 }
 
 build_and_switch() {
-  step "Checking and building the reviewed system"
-  source_ref="github:ajaxbits/macos-nix/$SOURCE_REV"
-  "$NIX" flake check --no-write-lock-file "$source_ref"
+  step "Archiving, checking, and building one immutable source snapshot"
+  source_path=$("$NIX" flake archive --json --no-write-lock-file "path:$checkout" | jq -r .path)
+  case "$source_path" in /*) ;; *) die "Nix did not return an absolute immutable source path" ;; esac
+  test -d "$source_path" || die "Nix archive path does not exist: $source_path"
+  source_hash=$("$NIX" hash path "$source_path")
+  "$NIX" flake check --no-write-lock-file "$source_path"
   result_link="$state_dir/system-result"
   "$NIX" build --no-write-lock-file --out-link "$result_link" \
-    "$source_ref#darwinConfigurations.$host_name.system"
+    "$source_path#darwinConfigurations.$host_name.system"
   built_system=$(realpath "$result_link")
   write_state ready-to-switch
 
-  test -z "$("$GIT" -C "$checkout" status --porcelain)" || die "checkout changed after review; refusing activation"
-  test "$("$GIT" -C "$checkout" rev-parse HEAD)" = "$SOURCE_REV" || die "checkout revision changed after review"
-
   step "Checking activation and Home Manager collisions"
   confirm "Run the pinned privileged activation check before switching?"
-  if ! "$SUDO" "$DARWIN_REBUILD" check --no-write-lock-file --flake "$source_ref#$host_name"; then
+  if ! "$SUDO" "$DARWIN_REBUILD" check --no-write-lock-file --flake "$source_path#$host_name"; then
     write_state activation-check-failed
     die "activation check failed; review collisions or policy errors before retrying"
   fi
@@ -392,7 +383,8 @@ Ready for the first switch:
   Host:       $host_name
   Profile:    $profile
   User:       $user_name ($uid)
-  Source:     $SOURCE_REV
+  Source:     $source_path
+  Source hash: $source_hash
   Checkout:   $checkout
   System:     $built_system
   Homebrew:   existing or installed without cleanup/upgrade outside configuration
@@ -401,7 +393,7 @@ The switch will request your administrator password and activate nix-darwin and
 Home Manager. It will not authenticate Tailscale, AWS, Jira, GitHub, or OpenCode.
 EOF
   confirm "Activate this exact host configuration?"
-  if ! "$SUDO" "$DARWIN_REBUILD" switch --no-write-lock-file --flake "$source_ref#$host_name"; then
+  if ! "$SUDO" "$DARWIN_REBUILD" switch --no-write-lock-file --flake "$source_path#$host_name"; then
     write_state activation-failed
     die "switch failed after activation began; inspect the partial system state before retrying"
   fi

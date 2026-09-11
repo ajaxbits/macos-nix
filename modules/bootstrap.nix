@@ -10,7 +10,6 @@ in
     let
       system = pkgs.stdenv.hostPlatform.system;
       lix = pkgs.lixPackageSets.latest.lix;
-      sourceRevision = inputs.self.rev or inputs.self.dirtyRev or "uncommitted";
       secretBaseName =
         path:
         let
@@ -41,7 +40,6 @@ in
         runtimeInputs = [
           pkgs.bash
           pkgs.coreutils
-          pkgs.git
           pkgs.gnugrep
           pkgs.gnused
           pkgs.jq
@@ -49,10 +47,7 @@ in
         ];
         text = ''
           export BOOTSTRAP_HOSTS_FILE=${hostsFile}
-          export BOOTSTRAP_SOURCE_REV=${sourceRevision}
-          export BOOTSTRAP_REPO_URL=https://github.com/ajaxbits/macos-nix.git
           export NIX=${lix}/bin/nix
-          export GIT=${pkgs.git}/bin/git
           export AGENIX=${config.packages.agenix}/bin/agenix
           export AGE_PLUGIN_SE=${pkgs.age-plugin-se}/bin/age-plugin-se
           export AGENIX_SE_KEYGEN=${config.packages.agenix-se-keygen}/bin/agenix-se-keygen

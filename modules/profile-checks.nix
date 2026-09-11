@@ -46,6 +46,7 @@
           ageIdentityType = "secure-enclave";
           flakeDirectory = "/fixture/${profile} checkout with spaces";
           synthetic = true;
+          deploymentReady = true;
         };
 
       personalHost = mkFixture {
