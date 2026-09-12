@@ -68,6 +68,9 @@
       workHome = work.home-manager.users.${workHost.userName};
       realPersonal = config.flake.darwinConfigurations."Alexs-MacBook-Air".config;
       realPersonalHome = realPersonal.home-manager.users.ajax;
+      firefoxProfile = personalHome.programs.firefox.profiles."default-release-2";
+      firefoxPolicies = personalHome.targets.darwin.defaults."org.mozilla.firefox";
+      workFirefoxPolicies = workHome.targets.darwin.defaults."org.mozilla.firefox";
 
       packageNames = packages: map lib.getName packages;
       normalizePackageName =
@@ -367,6 +370,26 @@
             && work.homebrew.onActivation.cleanup == "none"
             && !work.homebrew.onActivation.upgrade;
           message = "Homebrew activation policy is incorrect";
+        }
+        {
+          assertion =
+            personalHome.programs.firefox.enable
+            && personalHome.programs.firefox.package == null
+            && firefoxProfile.path == "ffeb7rvx.default-release-2"
+            && firefoxProfile.storeId == "cb8ad46c"
+            && firefoxProfile.settings."dom.security.https_only_mode"
+            && firefoxProfile.settings."network.trr.custom_uri" == "https://dns.nextdns.io/b698e3"
+            && firefoxPolicies.EnterprisePoliciesEnabled
+            && firefoxPolicies.ExtensionSettings."uBlock0@raymondhill.net".installation_mode == "normal_installed"
+            && firefoxPolicies.ExtensionSettings."uBlock0@raymondhill.net".updates_disabled == false
+            && firefoxPolicies.ExtensionSettings."{315f61e5-f0ce-4d6e-a521-70e8da512405}".installation_mode == "blocked"
+            && firefoxPolicies.ExtensionSettings."plugin@okta.com".installation_mode == "blocked"
+            && builtins.length (builtins.attrNames firefoxPolicies.ExtensionSettings) == 18
+            && workFirefoxPolicies.EnterprisePoliciesEnabled
+            && workFirefoxPolicies.ExtensionSettings."{315f61e5-f0ce-4d6e-a521-70e8da512405}".installation_mode == "normal_installed"
+            && workFirefoxPolicies.ExtensionSettings."plugin@okta.com".installation_mode == "normal_installed"
+            && builtins.length (builtins.attrNames workFirefoxPolicies.ExtensionSettings) == 2;
+          message = "the personal or work Firefox extension policy is incorrect";
         }
       ];
       failures = builtins.filter (item: !item.assertion) assertions;

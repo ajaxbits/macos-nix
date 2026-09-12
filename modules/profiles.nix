@@ -50,6 +50,7 @@
   flake.modules.homeManager.personal = {
     imports = with config.flake.modules.homeManager; [
       foundation
+      firefox-personal
       coreutils-personal
       opencode
     ];
@@ -58,6 +59,7 @@
   flake.modules.homeManager.work = {
     imports = with config.flake.modules.homeManager; [
       foundation
+      firefox-work
     ];
   };
 }
