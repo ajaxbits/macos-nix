@@ -70,6 +70,7 @@
       realPersonalHome = realPersonal.home-manager.users.ajax;
       firefoxProfile = personalHome.programs.firefox.profiles."default-release-2";
       firefoxPolicies = personalHome.targets.darwin.defaults."org.mozilla.firefox";
+      workFirefoxProfile = workHome.programs.firefox.profiles."default-release-2";
       workFirefoxPolicies = workHome.targets.darwin.defaults."org.mozilla.firefox";
 
       packageNames = packages: map lib.getName packages;
@@ -111,7 +112,8 @@
       ];
       personalHasKagi = personalHome.age.secrets ? kagi_api_key;
       workHasKagi = workHome.age.secrets ? kagi_api_key;
-      workHasPersonalOpenCode = workHome.programs ? opencode && workHome.programs.opencode.enable;
+      personalHasOpenCode = personalHome.programs ? opencode && personalHome.programs.opencode.enable;
+      workHasOpenCode = workHome.programs ? opencode && workHome.programs.opencode.enable;
       workHasDockerCompat = lib.any (name: lib.hasInfix "docker-compat" name) workSystemPackages;
       hasOpenCodeCoordinator =
         home:
@@ -323,7 +325,8 @@
           assertion =
             personalHasKagi
             && workHasKagi
-            && !workHasPersonalOpenCode
+            && personalHasOpenCode
+            && workHasOpenCode
             && workHome.age.identityPaths == [ workHost.ageIdentityPath ]
             && lib.elem "age-plugin-se" personalHomePackages
             && lib.elem "age-plugin-se" workHomePackages
@@ -388,7 +391,10 @@
             && workFirefoxPolicies.EnterprisePoliciesEnabled
             && workFirefoxPolicies.ExtensionSettings."{315f61e5-f0ce-4d6e-a521-70e8da512405}".installation_mode == "normal_installed"
             && workFirefoxPolicies.ExtensionSettings."plugin@okta.com".installation_mode == "normal_installed"
-            && builtins.length (builtins.attrNames workFirefoxPolicies.ExtensionSettings) == 2;
+            && workFirefoxProfile.settings."dom.security.https_only_mode"
+            && workFirefoxProfile.settings."network.trr.custom_uri" == "https://dns.nextdns.io/b698e3"
+            && workFirefoxProfile.userChrome != ""
+            && builtins.length (builtins.attrNames workFirefoxPolicies.ExtensionSettings) == 18;
           message = "the personal or work Firefox extension policy is incorrect";
         }
       ];

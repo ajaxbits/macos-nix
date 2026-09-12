@@ -11,6 +11,7 @@
       coreutils
       aerospace
       terminal
+      opencode
       secretive
       secrets
     ];
@@ -22,7 +23,6 @@
       brew-personal
       ebooks
       podman
-      opencode
     ];
   };
 
@@ -44,6 +44,7 @@
       vcs
       secrets
       shared-secrets
+      opencode
     ];
   };
 
@@ -52,7 +53,6 @@
       foundation
       firefox-personal
       coreutils-personal
-      opencode
     ];
   };
 
