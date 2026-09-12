@@ -74,7 +74,6 @@ let
   defaultProfile = {
     id = 0;
     path = "ffeb7rvx.default-release-2";
-    storeId = "cb8ad46c";
     userChrome = ./firefox/userChrome.css;
     settings = firefoxSettings;
   };
@@ -102,7 +101,10 @@ in
         path = "0ygchr04.default-release-1";
         isDefault = false;
       };
-      profiles."default-release-2" = defaultProfile // { id = 3; };
+      profiles."default-release-2" = defaultProfile // {
+        id = 3;
+        storeId = "cb8ad46c";
+      };
       profiles.dev-edition-default = {
         id = 4;
         path = "7bi16hgq.dev-edition-default";

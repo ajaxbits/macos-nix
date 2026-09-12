@@ -112,8 +112,18 @@
       ];
       personalHasKagi = personalHome.age.secrets ? kagi_api_key;
       workHasKagi = workHome.age.secrets ? kagi_api_key;
-      personalHasOpenCode = personalHome.programs ? opencode && personalHome.programs.opencode.enable;
-      workHasOpenCode = workHome.programs ? opencode && workHome.programs.opencode.enable;
+      hasManagedOpenCodeConfig =
+        home:
+        home.programs.opencode.enable
+        || home.programs.mcp.enable
+        || home.home.sessionVariables ? OPENCODE_EXPERIMENTAL
+        || lib.any (
+          path:
+          let
+            lowerPath = lib.toLower path;
+          in
+          lib.hasInfix "opencode" lowerPath || lib.hasInfix "/mcp/" lowerPath
+        ) (builtins.attrNames home.home.file);
       workHasDockerCompat = lib.any (name: lib.hasInfix "docker-compat" name) workSystemPackages;
       hasOpenCodeCoordinator =
         home:
@@ -189,7 +199,7 @@
         "lazygit"
         "man-db"
         "nix-output-monitor"
-        "opencode"
+        "opencode2"
         "seventeenlands"
         "starship"
         "xh"
@@ -325,15 +335,19 @@
           assertion =
             personalHasKagi
             && workHasKagi
-            && personalHasOpenCode
-            && workHasOpenCode
+            && lib.elem "opencode2" personalHomePackages
+            && lib.elem "opencode2" workHomePackages
+            && !(lib.elem "opencode" personalHomePackages)
+            && !(lib.elem "opencode" workHomePackages)
+            && !(hasManagedOpenCodeConfig personalHome)
+            && !(hasManagedOpenCodeConfig workHome)
             && workHome.age.identityPaths == [ workHost.ageIdentityPath ]
             && lib.elem "age-plugin-se" personalHomePackages
             && lib.elem "age-plugin-se" workHomePackages
             && lib.elem "agenix" personalHomePackages
             && lib.elem "agenix" workHomePackages
             && !(lib.elem "/Users/ajax/.ssh/bitwarden" workHome.age.identityPaths);
-          message = "shared Kagi or profile-specific OpenCode/identity boundaries are incorrect";
+          message = "shared Kagi, standalone opencode2, or identity boundaries are incorrect";
         }
         {
           assertion =
@@ -394,6 +408,7 @@
             && workFirefoxProfile.settings."dom.security.https_only_mode"
             && workFirefoxProfile.settings."network.trr.custom_uri" == "https://dns.nextdns.io/b698e3"
             && workFirefoxProfile.userChrome != ""
+            && workFirefoxProfile.storeId == null
             && builtins.length (builtins.attrNames workFirefoxPolicies.ExtensionSettings) == 18;
           message = "the personal or work Firefox extension policy is incorrect";
         }
