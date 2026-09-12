@@ -28,6 +28,56 @@ let
     installation_mode = "normal_installed";
     updates_disabled = false;
   });
+  firefoxSettings = {
+    "browser.ai.control.default" = "blocked";
+    "browser.ai.control.linkPreviewKeyPoints" = "blocked";
+    "browser.ai.control.pdfjsAltText" = "blocked";
+    "browser.ai.control.sidebarChatbot" = "blocked";
+    "browser.ai.control.smartTabGroups" = "blocked";
+    "browser.ai.control.translations" = "blocked";
+    "browser.ctrlTab.sortByRecentlyUsed" = true;
+    "browser.download.autohideButton" = false;
+    "browser.ipProtection.enabled" = true;
+    "browser.startup.homepage" = "about:blank";
+    "browser.startup.page" = 3;
+    "browser.tabs.inTitlebar" = 1;
+    "browser.tabs.loadInBackground" = false;
+    "browser.tabs.warnOnClose" = true;
+    "browser.toolbars.bookmarks.showOtherBookmarks" = false;
+    "browser.toolbars.bookmarks.visibility" = "never";
+    "browser.urlbar.suggest.quicksuggest.sponsored" = false;
+    "devtools.cache.disabled" = true;
+    "devtools.netmonitor.persistlog" = true;
+    "devtools.responsive.touchSimulation.enabled" = true;
+    "devtools.responsive.userAgent" = "Mozilla/5.0 (Linux; Android 11; SAMSUNG SM-G973U) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/14.2 Chrome/87.0.4280.141 Mobile Safari/537.36";
+    "devtools.responsive.viewport.height" = 883;
+    "devtools.responsive.viewport.pixelRatio" = 3;
+    "devtools.responsive.viewport.width" = 412;
+    "doh-rollout.mode" = 0;
+    "doh-rollout.self-enabled" = true;
+    "doh-rollout.uri" = "https://mozilla.cloudflare-dns.com/dns-query";
+    "dom.security.https_only_mode" = true;
+    "extensions.formautofill.creditCards.enabled" = false;
+    "extensions.ml.enabled" = false;
+    "findbar.highlightAll" = true;
+    "image.jxl.enabled" = true;
+    "network.dns.disablePrefetch" = true;
+    "network.http.speculative-parallel-limit" = 0;
+    "network.prefetch-next" = false;
+    "network.security.ports.banned.override" = "6666";
+    "network.trr.custom_uri" = "https://dns.nextdns.io/b698e3";
+    "pdfjs.enableAltText" = false;
+    "privacy.clearOnShutdown_v2.formdata" = true;
+    "reader.font_size" = 7;
+    "signon.rememberSignons" = false;
+  };
+  defaultProfile = {
+    id = 0;
+    path = "ffeb7rvx.default-release-2";
+    storeId = "cb8ad46c";
+    userChrome = ./firefox/userChrome.css;
+    settings = firefoxSettings;
+  };
 in
 {
   flake.modules.homeManager.firefox-personal = {
@@ -52,55 +102,7 @@ in
         path = "0ygchr04.default-release-1";
         isDefault = false;
       };
-      profiles."default-release-2" = {
-        id = 3;
-        path = "ffeb7rvx.default-release-2";
-        storeId = "cb8ad46c";
-        userChrome = ./firefox/userChrome.css;
-        settings = {
-          "browser.ai.control.default" = "blocked";
-          "browser.ai.control.linkPreviewKeyPoints" = "blocked";
-          "browser.ai.control.pdfjsAltText" = "blocked";
-          "browser.ai.control.sidebarChatbot" = "blocked";
-          "browser.ai.control.smartTabGroups" = "blocked";
-          "browser.ai.control.translations" = "blocked";
-          "browser.ctrlTab.sortByRecentlyUsed" = true;
-          "browser.download.autohideButton" = false;
-          "browser.ipProtection.enabled" = true;
-          "browser.startup.homepage" = "about:blank";
-          "browser.startup.page" = 3;
-          "browser.tabs.inTitlebar" = 1;
-          "browser.tabs.loadInBackground" = false;
-          "browser.tabs.warnOnClose" = true;
-          "browser.toolbars.bookmarks.showOtherBookmarks" = false;
-          "browser.toolbars.bookmarks.visibility" = "never";
-          "browser.urlbar.suggest.quicksuggest.sponsored" = false;
-          "devtools.cache.disabled" = true;
-          "devtools.netmonitor.persistlog" = true;
-          "devtools.responsive.touchSimulation.enabled" = true;
-          "devtools.responsive.userAgent" = "Mozilla/5.0 (Linux; Android 11; SAMSUNG SM-G973U) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/14.2 Chrome/87.0.4280.141 Mobile Safari/537.36";
-          "devtools.responsive.viewport.height" = 883;
-          "devtools.responsive.viewport.pixelRatio" = 3;
-          "devtools.responsive.viewport.width" = 412;
-          "doh-rollout.mode" = 0;
-          "doh-rollout.self-enabled" = true;
-          "doh-rollout.uri" = "https://mozilla.cloudflare-dns.com/dns-query";
-          "dom.security.https_only_mode" = true;
-          "extensions.formautofill.creditCards.enabled" = false;
-          "extensions.ml.enabled" = false;
-          "findbar.highlightAll" = true;
-          "image.jxl.enabled" = true;
-          "network.dns.disablePrefetch" = true;
-          "network.http.speculative-parallel-limit" = 0;
-          "network.prefetch-next" = false;
-          "network.security.ports.banned.override" = "6666";
-          "network.trr.custom_uri" = "https://dns.nextdns.io/b698e3";
-          "pdfjs.enableAltText" = false;
-          "privacy.clearOnShutdown_v2.formdata" = true;
-          "reader.font_size" = 7;
-          "signon.rememberSignons" = false;
-        };
-      };
+      profiles."default-release-2" = defaultProfile // { id = 3; };
       profiles.dev-edition-default = {
         id = 4;
         path = "7bi16hgq.dev-edition-default";
@@ -122,9 +124,21 @@ in
   };
 
   flake.modules.homeManager.firefox-work = {
+    programs.firefox = {
+      enable = true;
+      package = null;
+      profileVersion = 2;
+      profiles."default-release-2" = defaultProfile;
+    };
+
+    home.file = {
+      "${profilePath}/chrome/chrome/hide_tabs_toolbar_v2.css".source = ./firefox/chrome/hide_tabs_toolbar_v2.css;
+      "${profilePath}/chrome/chrome/window_control_placeholder_support.css".source = ./firefox/chrome/window_control_placeholder_support.css;
+    };
+
     targets.darwin.defaults."org.mozilla.firefox" = {
       EnterprisePoliciesEnabled = true;
-      ExtensionSettings = lib.genAttrs workOnlyExtensions (_: {
+      ExtensionSettings = autoUpdatingExtensionSettings // lib.genAttrs workOnlyExtensions (_: {
         installation_mode = "normal_installed";
         updates_disabled = false;
       });
