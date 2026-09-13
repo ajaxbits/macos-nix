@@ -9,7 +9,6 @@
         "ankerwork"
         "betterdisplay"
         "fantastical"
-        "firefox"
         "jordanbaird-ice"
         "keepingyouawake"
         "maccy"

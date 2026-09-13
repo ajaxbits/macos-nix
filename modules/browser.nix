@@ -1,4 +1,6 @@
-# Firefox remains a Homebrew cask so its native updater can manage application updates.
+# Firefox is installed and managed by home-manager from the Nix store
+# (pkgs.firefox-bin). This is fully declarative but forgoes Homebrew's native
+# in-app auto-updates; the browser version is pinned by flake.lock.
 { lib, ... }:
 let
   profilePath = "Library/Application Support/Firefox/Profiles/ffeb7rvx.default-release-2";
@@ -79,11 +81,13 @@ let
   };
 in
 {
-  flake.modules.homeManager.firefox-personal = {
+  flake.modules.homeManager.firefox-personal = { pkgs, ... }: {
     programs.firefox = {
       enable = true;
-      # The application is installed by Homebrew rather than the Nix store.
-      package = null;
+      # Firefox is installed and managed entirely by home-manager from the Nix
+      # store. This trades Homebrew's automatic in-app updates for a fully
+      # declarative, reproducible browser pinned by flake.lock.
+      package = pkgs.firefox-bin;
       # Keep the existing profile registry intact while managing the active profile.
       profileVersion = 2;
       profiles.default-release = {
@@ -125,12 +129,19 @@ in
     };
   };
 
-  flake.modules.homeManager.firefox-work = {
+  flake.modules.homeManager.firefox-work = { pkgs, ... }: {
     programs.firefox = {
       enable = true;
-      package = null;
+      # Installed and managed entirely by home-manager from the Nix store
+      # (no Homebrew cask, no in-app auto-update).
+      package = pkgs.firefox-bin;
       profileVersion = 2;
-      profiles."default-release-2" = defaultProfile;
+      # Bridge to the existing Firefox "Profile Groups" store on the work host so
+      # the new profile implementation resolves the managed profile instead of
+      # reporting "Profile Missing". The StoreID matches Profile Groups/7951011d.sqlite.
+      profiles."default-release-2" = defaultProfile // {
+        storeId = "7951011d";
+      };
     };
 
     home.file = {

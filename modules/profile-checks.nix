@@ -182,6 +182,7 @@
         "direnv"
         "entr"
         "eza"
+        "firefox-bin"
         "fish"
         "fx"
         "fzf"
@@ -214,7 +215,6 @@
         "calibre"
         "discord"
         "fantastical"
-        "firefox"
         "helium-browser"
         "jordanbaird-ice"
         "keepingyouawake"
@@ -391,7 +391,8 @@
         {
           assertion =
             personalHome.programs.firefox.enable
-            && personalHome.programs.firefox.package == null
+            && personalHome.programs.firefox.package != null
+            && workHome.programs.firefox.package != null
             && firefoxProfile.path == "ffeb7rvx.default-release-2"
             && firefoxProfile.storeId == "cb8ad46c"
             && firefoxProfile.settings."dom.security.https_only_mode"
@@ -408,7 +409,7 @@
             && workFirefoxProfile.settings."dom.security.https_only_mode"
             && workFirefoxProfile.settings."network.trr.custom_uri" == "https://dns.nextdns.io/b698e3"
             && workFirefoxProfile.userChrome != ""
-            && workFirefoxProfile.storeId == null
+            && workFirefoxProfile.storeId == "7951011d"
             && builtins.length (builtins.attrNames workFirefoxPolicies.ExtensionSettings) == 18;
           message = "the personal or work Firefox extension policy is incorrect";
         }
