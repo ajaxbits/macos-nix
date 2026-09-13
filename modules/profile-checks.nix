@@ -402,7 +402,7 @@
             && firefoxPolicies.ExtensionSettings."uBlock0@raymondhill.net".updates_disabled == false
             && firefoxPolicies.ExtensionSettings."{315f61e5-f0ce-4d6e-a521-70e8da512405}".installation_mode == "blocked"
             && firefoxPolicies.ExtensionSettings."plugin@okta.com".installation_mode == "blocked"
-            && builtins.length (builtins.attrNames firefoxPolicies.ExtensionSettings) == 18
+            && builtins.length (builtins.attrNames firefoxPolicies.ExtensionSettings) == 19
             && workFirefoxPolicies.EnterprisePoliciesEnabled
             && workFirefoxPolicies.ExtensionSettings."{315f61e5-f0ce-4d6e-a521-70e8da512405}".installation_mode == "normal_installed"
             && workFirefoxPolicies.ExtensionSettings."plugin@okta.com".installation_mode == "normal_installed"
@@ -410,7 +410,7 @@
             && workFirefoxProfile.settings."network.trr.custom_uri" == "https://dns.nextdns.io/b698e3"
             && workFirefoxProfile.userChrome != ""
             && workFirefoxProfile.storeId == "7951011d"
-            && builtins.length (builtins.attrNames workFirefoxPolicies.ExtensionSettings) == 18;
+            && builtins.length (builtins.attrNames workFirefoxPolicies.ExtensionSettings) == 19;
           message = "the personal or work Firefox extension policy is incorrect";
         }
       ];

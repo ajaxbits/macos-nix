@@ -21,6 +21,7 @@ let
     "{446900e4-71c2-419f-a6a7-df9c091e268b}" # Bitwarden
     "uBlock0@raymondhill.net"
     "{f0bda7ce-0cda-42dc-9ea8-126b20fed280}" # Hister
+    "{eb8c4a94-e603-49ef-8e81-73d3c4cc04ff}" # Gruvbox Dark (theme)
   ];
   workOnlyExtensions = [
     "{315f61e5-f0ce-4d6e-a521-70e8da512405}" # Glean
@@ -59,6 +60,7 @@ let
     "doh-rollout.self-enabled" = true;
     "doh-rollout.uri" = "https://mozilla.cloudflare-dns.com/dns-query";
     "dom.security.https_only_mode" = true;
+    "extensions.activeThemeID" = "{eb8c4a94-e603-49ef-8e81-73d3c4cc04ff}"; # Gruvbox Dark
     "extensions.formautofill.creditCards.enabled" = false;
     "extensions.ml.enabled" = false;
     "findbar.highlightAll" = true;
