@@ -132,8 +132,17 @@
         ) (builtins.attrNames home.launchd.agents);
       hasFoundationWallpaper =
         configuration:
-        configuration.system.activationScripts ? setWallpaper
-        && lib.hasInfix "lava-dark.jpg" configuration.system.activationScripts.setWallpaper.text;
+        let
+          # Only the script nix-darwin assembles is ever executed, so assert
+          # against that rather than a free-standing activation attribute.
+          activation = configuration.system.activationScripts.script.text;
+        in
+        lib.hasInfix "lava-dark.jpg" activation
+        # Activation runs as root, so the picture must be set in the user session.
+        && lib.hasInfix "asuser" activation
+        # The image must be its own store path. A reference into the flake source
+        # is not a dependency of the system and can be garbage collected.
+        && !lib.hasInfix "-source/assets/lava-dark.jpg" activation;
 
       invalidWork = builtins.tryEval (
         let

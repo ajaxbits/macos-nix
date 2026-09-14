@@ -7,7 +7,7 @@
       wallpaperScript = ''
         tell application "System Events"
           tell every desktop
-            set picture to POSIX file ${builtins.toJSON (toString wallpaper)}
+            set picture to POSIX file "${wallpaper}"
           end tell
         end tell
       '';
@@ -39,10 +39,16 @@
         };
         keyboard.enableKeyMapping = true;
         keyboard.remapCapsLockToEscape = true;
-        activationScripts.setWallpaper.text = ''
-          user=${lib.escapeShellArg host.userName}
-          uid="$(/usr/bin/id -u "$user")"
-          /bin/launchctl asuser "$uid" /usr/bin/osascript -e ${lib.escapeShellArg wallpaperScript}
+        # nix-darwin only runs the fixed set of activation scripts it assembles,
+        # so this must hook into postActivation to run at all. Activation runs as
+        # root, and the picture belongs to the user's GUI session.
+        activationScripts.postActivation.text = ''
+          wallpaperUser=${lib.escapeShellArg host.userName}
+          if ! launchctl asuser "$(id -u -- "$wallpaperUser")" \
+            sudo --user="$wallpaperUser" -- \
+            /usr/bin/osascript -e ${lib.escapeShellArg wallpaperScript}; then
+            printf >&2 'warning: could not set the desktop wallpaper for %s\n' "$wallpaperUser"
+          fi
         '';
       };
 
