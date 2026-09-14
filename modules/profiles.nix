@@ -5,13 +5,13 @@
     darwin = {
       foundation = {
         imports = with config.flake.modules.darwin; [
+          ai-base
           aerospace-base
           brew-base
           coreutils
           host
           macos-defaults
           nix
-          opencode
           secretive
           secrets
           terminal
@@ -32,6 +32,7 @@
       work = {
         imports = with config.flake.modules.darwin; [
           aerospace-work
+          ai-work
           brew-work
           foundation
         ];
@@ -41,10 +42,10 @@
     homeManager = {
       foundation = {
         imports = with config.flake.modules.homeManager; [
+          ai-base
           coreutils
           fish
           host
-          opencode
           secrets
           shared-secrets
           terminal
@@ -55,6 +56,7 @@
 
       personal = {
         imports = with config.flake.modules.homeManager; [
+          ai-personal
           coreutils-personal
           firefox-personal
           foundation
@@ -63,6 +65,7 @@
 
       work = {
         imports = with config.flake.modules.homeManager; [
+          ai-work
           firefox-work
           foundation
         ];

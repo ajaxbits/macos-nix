@@ -227,7 +227,6 @@
         "lazygit"
         "man-db"
         "nix-output-monitor"
-        "opencode2"
         "seventeenlands"
         "starship"
         "xh"
@@ -236,7 +235,6 @@
       ];
       expectedPersonalCasks = builtins.sort builtins.lessThan [
         "ankerwork"
-        "barkeep"
         "balenaetcher"
         "betterdisplay"
         "bitwarden"
@@ -244,6 +242,7 @@
         "discord"
         "fantastical"
         "helium-browser"
+        "hiddenbar"
         "jordanbaird-ice"
         "keepingyouawake"
         "maccy"
@@ -380,10 +379,14 @@
           assertion =
             personalHasKagi
             && workHasKagi
-            && lib.elem "opencode2" personalHomePackages
-            && lib.elem "opencode2" workHomePackages
+            && !(lib.elem "claude-code" personalHomePackages)
+            && lib.elem "claude-code" workHomePackages
+            && !(lib.elem "opencode2" personalHomePackages)
+            && !(lib.elem "opencode2" workHomePackages)
             && !(lib.elem "opencode" personalHomePackages)
             && !(lib.elem "opencode" workHomePackages)
+            && !(lib.elem "claude" personalCasks)
+            && lib.elem "claude" workCasks
             && !(hasManagedOpenCodeConfig personalHome)
             && !(hasManagedOpenCodeConfig workHome)
             && workHome.age.identityPaths == [ workHost.ageIdentityPath ]
@@ -392,7 +395,7 @@
             && lib.elem "agenix" personalHomePackages
             && lib.elem "agenix" workHomePackages
             && !(lib.elem "/Users/ajax/.ssh/bitwarden" workHome.age.identityPaths);
-          message = "shared Kagi, standalone opencode2, or identity boundaries are incorrect";
+          message = "shared Kagi, AI tooling, desktop app, or identity boundaries are incorrect";
         }
         {
           assertion =
@@ -434,7 +437,7 @@
             personal.homebrew.onActivation.cleanup == "zap"
             && personal.homebrew.onActivation.upgrade
             && work.homebrew.onActivation.cleanup == "none"
-            && !work.homebrew.onActivation.upgrade;
+            && work.homebrew.onActivation.upgrade;
           message = "Homebrew activation policy is incorrect";
         }
         {
