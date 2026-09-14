@@ -68,6 +68,7 @@
       workHome = work.home-manager.users.${workHost.userName};
       realPersonal = config.flake.darwinConfigurations."Alexs-MacBook-Air".config;
       realPersonalHome = realPersonal.home-manager.users.ajax;
+      realWork = config.flake.darwinConfigurations.K1H96QD74C.config;
       firefoxProfile = personalHome.programs.firefox.profiles."default-release-2";
       firefoxPolicies = personalHome.targets.darwin.defaults."org.mozilla.firefox";
       workFirefoxProfile = workHome.programs.firefox.profiles."default-release-2";
@@ -150,6 +151,19 @@
         in
         builtins.deepSeq invalid.config.networking.hostName true
       );
+
+      invalidProfile = builtins.tryEval (
+        let
+          invalid = mkHost (workHost // { profile = "unknown"; });
+        in
+        builtins.deepSeq invalid.config.networking.hostName true
+      );
+      workspaceAppIds =
+        system: map (callback: callback."if".app-id) system.services.aerospace.settings.on-window-detected;
+      personalWorkspaceAppIds = workspaceAppIds personal;
+      workWorkspaceAppIds = workspaceAppIds work;
+      realPersonalWorkspaceAppIds = workspaceAppIds realPersonal;
+      realWorkWorkspaceAppIds = workspaceAppIds realWork;
 
       expectedPersonalSystemPackages = builtins.sort builtins.lessThan [
         "aerospace"
@@ -293,7 +307,7 @@
               ]
             &&
               builtins.hashString "sha256" (builtins.toJSON realPersonal.services.aerospace.settings)
-              == "9b84c5221cc2d2b8552b3d5e39aa2150d9cee42deefa16316682bccb0be1524f"
+              == "b1492563ad6f884a107d177291a229004771301a764b360896e2573db2cc6f32"
             &&
               builtins.hashString "sha256" (builtins.toJSON realPersonalHome.programs.ghostty.settings)
               == "841c849aa4b6c5eeb160246ab996e6bd102f8f5eab57f38a1160cef4bd11411b";
@@ -312,6 +326,19 @@
         {
           assertion = hasFoundationWallpaper personal && hasFoundationWallpaper work;
           message = "foundation wallpaper activation is missing from a profile";
+        }
+        {
+          assertion =
+            personalHome.home.file ? ".hushlogin"
+            && personalHome.home.file.".hushlogin".text == ""
+            && workHome.home.file ? ".hushlogin"
+            && workHome.home.file.".hushlogin".text == "";
+          message = "Home Manager must suppress macOS login banners for every profile";
+        }
+        {
+          assertion =
+            personal.system.defaults.dock.expose-group-apps && work.system.defaults.dock.expose-group-apps;
+          message = "Expose application grouping is missing from a profile";
         }
         {
           assertion =
@@ -391,6 +418,10 @@
           message = "a real work host accepted a placeholder Git identity";
         }
         {
+          assertion = !invalidProfile.success;
+          message = "a host accepted an unregistered profile";
+        }
+        {
           assertion =
             lib.hasInfix personalHost.flakeDirectory productionRebuildBody
             && lib.hasInfix personalHost.outputName productionRebuildBody
@@ -407,6 +438,18 @@
         }
         {
           assertion =
+            lib.elem "com.roam-research.desktop-app" personalWorkspaceAppIds
+            && !(lib.elem "com.tinyspeck.slackmacgap" personalWorkspaceAppIds)
+            && lib.elem "com.tinyspeck.slackmacgap" workWorkspaceAppIds
+            && !(lib.elem "com.roam-research.desktop-app" workWorkspaceAppIds)
+            && lib.elem "com.roam-research.desktop-app" realPersonalWorkspaceAppIds
+            && !(lib.elem "com.tinyspeck.slackmacgap" realPersonalWorkspaceAppIds)
+            && lib.elem "com.tinyspeck.slackmacgap" realWorkWorkspaceAppIds
+            && !(lib.elem "com.roam-research.desktop-app" realWorkWorkspaceAppIds);
+          message = "AeroSpace application routes are not profile-specific";
+        }
+        {
+          assertion =
             personalHome.programs.firefox.enable
             && personalHome.programs.firefox.package != null
             && workHome.programs.firefox.package != null
@@ -415,13 +458,18 @@
             && firefoxProfile.settings."dom.security.https_only_mode"
             && firefoxProfile.settings."network.trr.custom_uri" == "https://dns.nextdns.io/b698e3"
             && firefoxPolicies.EnterprisePoliciesEnabled
-            && firefoxPolicies.ExtensionSettings."uBlock0@raymondhill.net".installation_mode == "normal_installed"
+            &&
+              firefoxPolicies.ExtensionSettings."uBlock0@raymondhill.net".installation_mode == "normal_installed"
             && firefoxPolicies.ExtensionSettings."uBlock0@raymondhill.net".updates_disabled == false
-            && firefoxPolicies.ExtensionSettings."{315f61e5-f0ce-4d6e-a521-70e8da512405}".installation_mode == "blocked"
+            &&
+              firefoxPolicies.ExtensionSettings."{315f61e5-f0ce-4d6e-a521-70e8da512405}".installation_mode
+              == "blocked"
             && firefoxPolicies.ExtensionSettings."plugin@okta.com".installation_mode == "blocked"
             && builtins.length (builtins.attrNames firefoxPolicies.ExtensionSettings) == 19
             && workFirefoxPolicies.EnterprisePoliciesEnabled
-            && workFirefoxPolicies.ExtensionSettings."{315f61e5-f0ce-4d6e-a521-70e8da512405}".installation_mode == "normal_installed"
+            &&
+              workFirefoxPolicies.ExtensionSettings."{315f61e5-f0ce-4d6e-a521-70e8da512405}".installation_mode
+              == "normal_installed"
             && workFirefoxPolicies.ExtensionSettings."plugin@okta.com".installation_mode == "normal_installed"
             && workFirefoxProfile.settings."dom.security.https_only_mode"
             && workFirefoxProfile.settings."network.trr.custom_uri" == "https://dns.nextdns.io/b698e3"

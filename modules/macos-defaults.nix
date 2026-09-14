@@ -2,7 +2,7 @@
   flake.modules.darwin.macos-defaults =
     { config, lib, ... }:
     let
-      host = config.macosNix.host;
+      inherit (config.macosNix) host;
       wallpaper = ../assets/lava-dark.jpg;
       wallpaperScript = ''
         tell application "System Events"

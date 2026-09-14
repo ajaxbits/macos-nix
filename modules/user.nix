@@ -11,11 +11,9 @@ let
           options = {
             outputName = mkOption { type = types.str; };
             hostName = mkOption { type = types.str; };
+            # mkDarwinConfiguration validates this against both profile registries.
             profile = mkOption {
-              type = types.enum [
-                "personal"
-                "work"
-              ];
+              type = types.str;
             };
             system = mkOption { type = types.str; };
             userName = mkOption { type = types.str; };
@@ -62,59 +60,69 @@ let
     };
 in
 {
-  flake.modules.darwin.host = hostOptions;
-  flake.modules.homeManager.host = hostOptions;
+  flake.modules = {
+    darwin = {
+      host = hostOptions;
 
-  flake.modules.darwin.user =
-    {
-      config,
-      pkgs,
-      lib,
-      ...
-    }:
-    let
-      host = config.macosNix.host;
-    in
-    {
-      system.primaryUser = host.userName;
-      nix.settings.trusted-users = lib.mkIf host.nixTrustedUser [ host.userName ];
-
-      programs.zsh.enable = true;
-      programs.fish.enable = true;
-      environment.shells = [ pkgs.fish ];
-
-      users.knownUsers = lib.mkIf host.manageUser [ host.userName ];
-      users.users = lib.mkIf host.manageUser {
-        ${host.userName} = {
-          description = host.fullName;
-          home = host.homeDirectory;
-          shell = pkgs.fish;
-          uid = host.uid;
-        };
-      };
-
-      environment.variables = {
-        EDITOR = "nvim";
-      };
-
-      assertions = [
+      user =
         {
-          assertion = !host.manageUser || host.uid != null;
-          message = "a managed macosNix host user requires a UID";
-        }
-      ];
+          config,
+          pkgs,
+          lib,
+          ...
+        }:
+        let
+          inherit (config.macosNix) host;
+        in
+        {
+          system.primaryUser = host.userName;
+          nix.settings.trusted-users = lib.mkIf host.nixTrustedUser [ host.userName ];
+
+          programs.zsh.enable = true;
+          programs.fish.enable = true;
+          environment.shells = [ pkgs.fish ];
+
+          users.knownUsers = lib.mkIf host.manageUser [ host.userName ];
+          users.users = lib.mkIf host.manageUser {
+            ${host.userName} = {
+              inherit (host) uid;
+              description = host.fullName;
+              home = host.homeDirectory;
+              shell = pkgs.fish;
+            };
+          };
+
+          environment.variables = {
+            EDITOR = "nvim";
+          };
+
+          assertions = [
+            {
+              assertion = !host.manageUser || host.uid != null;
+              message = "a managed macosNix host user requires a UID";
+            }
+          ];
+        };
     };
 
-  flake.modules.homeManager.user =
-    { config, lib, ... }:
-    let
-      host = config.macosNix.host;
-    in
-    {
-      home = {
-        username = lib.mkForce host.userName;
-        homeDirectory = lib.mkForce host.homeDirectory;
-        stateVersion = host.homeStateVersion;
-      };
+    homeManager = {
+      host = hostOptions;
+
+      user =
+        { config, lib, ... }:
+        let
+          inherit (config.macosNix) host;
+        in
+        {
+          home = {
+            username = lib.mkForce host.userName;
+            homeDirectory = lib.mkForce host.homeDirectory;
+            stateVersion = host.homeStateVersion;
+          };
+
+          # Suppress macOS login banners such as "Last login".
+          home.file.".hushlogin".text = "";
+        };
     };
+  };
 }

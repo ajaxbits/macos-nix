@@ -46,86 +46,85 @@ in
       }:
       let
         inherit (lib.meta) getExe;
-        host = config.macosNix.host;
+        inherit (config.macosNix) host;
         jj = getExe pkgs.jujutsu;
         sd = getExe pkgs.sd;
       in
       {
         home.packages = [ pkgs.fishPlugins.gruvbox ];
 
-        programs.zoxide = {
-          enable = true;
-          enableFishIntegration = true;
-          enableZshIntegration = true;
-          enableBashIntegration = true;
-        };
+        programs = {
+          zoxide = {
+            enable = true;
+            enableFishIntegration = true;
+            enableZshIntegration = true;
+            enableBashIntegration = true;
+          };
 
-        programs.starship = {
-          enable = true;
-          enableFishIntegration = true;
-          enableZshIntegration = true;
-          enableBashIntegration = true;
-          settings = {
-            aws.disabled = true;
-            custom = {
-              jjstate = {
-                when = "${jj} --ignore-working-copy root";
-                command = ''
-                  ${jj} log -r@ -n1 --ignore-working-copy --no-graph -T "" --stat | tail -n1 | ${sd} "(\d+) files? changed, (\d+) insertions?\(\+\), (\d+) deletions?\(-\)" ' ''${1}m ''${2}+ ''${3}-' | ${sd} " 0." ""
-                '';
+          starship = {
+            enable = true;
+            enableFishIntegration = true;
+            enableZshIntegration = true;
+            enableBashIntegration = true;
+            settings = {
+              aws.disabled = true;
+              custom = {
+                jjstate = {
+                  when = "${jj} --ignore-working-copy root";
+                  command = ''
+                    ${jj} log -r@ -n1 --ignore-working-copy --no-graph -T "" --stat | tail -n1 | ${sd} "(\d+) files? changed, (\d+) insertions?\(\+\), (\d+) deletions?\(-\)" ' ''${1}m ''${2}+ ''${3}-' | ${sd} " 0." ""
+                  '';
+                };
               };
             };
           };
-        };
 
-        programs.fish = {
-          enable = true;
-          functions = {
-            __fish_command_not_found_handler = {
-              body = "__fish_default_command_not_found_handler $argv[1]";
-              onEvent = "fish_command_not_found";
+          fish = {
+            enable = true;
+            functions = {
+              __fish_command_not_found_handler = {
+                body = "__fish_default_command_not_found_handler $argv[1]";
+                onEvent = "fish_command_not_found";
+              };
+              take = ''
+                set dir $argv[1]
+                mkdir -p $dir
+                cd $dir
+              '';
+              t = ''
+                if test -z $argv[1]
+                    set dirname xx
+                else
+                    set dirname $argv[1]
+                end
+                pushd (mktemp -d -t $dirname.XXXX)
+              '';
+              nixre = ''
+                ${mkRebuildFunction {
+                  checkout = host.flakeDirectory;
+                  outputName = host.outputName;
+                  buildExe = getExe pkgs.nix-output-monitor;
+                  sudoExe = "/usr/bin/sudo";
+                  rebuildExe = getExe inputs.darwin.packages.${pkgs.stdenv.hostPlatform.system}.darwin-rebuild;
+                }}
+              '';
             };
-            take = ''
-              set dir $argv[1]
-              mkdir -p $dir
-              cd $dir
-            '';
-            t = ''
-              if test -z $argv[1]
-                  set dirname xx
-              else
-                  set dirname $argv[1]
-              end
-              pushd (mktemp -d -t $dirname.XXXX)
-            '';
-            nixre = ''
-              ${mkRebuildFunction {
-                checkout = host.flakeDirectory;
-                outputName = host.outputName;
-                buildExe = getExe pkgs.nix-output-monitor;
-                sudoExe = "/usr/bin/sudo";
-                rebuildExe = getExe inputs.darwin.packages.${pkgs.stdenv.hostPlatform.system}.darwin-rebuild;
-              }}
+
+            shellAliases = {
+              v = "nvim";
+              l = "${pkgs.eza}/bin/eza -lahF --git --no-user --group-directories-first --color-scale";
+              la = "${pkgs.eza}/bin/eza -lahF --git";
+              cat = "${pkgs.bat}/bin/bat -pp";
+            };
+
+            interactiveShellInit = ''
+              fish_vi_key_bindings
+              set fish_greeting
+              set fish_cursor_insert line
+
+              ${pkgs.any-nix-shell}/bin/any-nix-shell fish --info-right | source
             '';
           };
-
-          shellAliases = {
-            v = "nvim";
-            l = "${pkgs.eza}/bin/eza -lahF --git --no-user --group-directories-first --color-scale";
-            la = "${pkgs.eza}/bin/eza -lahF --git";
-            cat = "${pkgs.bat}/bin/bat -pp";
-          };
-
-          shellInit = ''
-            fish_vi_key_bindings
-            set fish_greeting
-            set fish_cursor_insert line
-
-            ${pkgs.any-nix-shell}/bin/any-nix-shell fish --info-right | source
-            ${pkgs.jujutsu}/bin/jj util completion fish | source
-
-            theme_gruvbox dark
-          '';
         };
       };
   };

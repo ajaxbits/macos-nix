@@ -15,33 +15,36 @@ let
     };
 in
 {
-  flake.modules.darwin.secrets = {
-    imports = [ inputs.agenix.darwinModules.default ];
-  };
-
-  flake.modules.homeManager.secrets =
-    { config, pkgs, ... }:
-    let
-      pluginAge = pluginAgeFor pkgs;
-      agenix = agenixFor pkgs;
-    in
-    {
-      imports = [ inputs.agenix.homeManagerModules.default ];
-
-      age = {
-        package = pluginAge;
-        identityPaths = [ config.macosNix.host.ageIdentityPath ];
-      };
-
-      home.packages = [
-        agenix
-        pluginAge
-        pkgs.age-plugin-se
-      ];
+  flake.modules = {
+    darwin.secrets = {
+      imports = [ inputs.agenix.darwinModules.default ];
     };
+    homeManager = {
+      secrets =
+        { config, pkgs, ... }:
+        let
+          pluginAge = pluginAgeFor pkgs;
+          agenix = agenixFor pkgs;
+        in
+        {
+          imports = [ inputs.agenix.homeManagerModules.default ];
 
-  flake.modules.homeManager.shared-secrets = {
-    age.secrets.kagi_api_key.file = ../secrets/kagi_api_key.age;
+          age = {
+            package = pluginAge;
+            identityPaths = [ config.macosNix.host.ageIdentityPath ];
+          };
+
+          home.packages = [
+            agenix
+            pluginAge
+            pkgs.age-plugin-se
+          ];
+        };
+
+      shared-secrets = {
+        age.secrets.kagi_api_key.file = ../secrets/kagi_api_key.age;
+      };
+    };
   };
 
   perSystem =
@@ -51,10 +54,10 @@ in
       agenix = agenixFor pkgs;
       keygen = pkgs.writeShellApplication {
         name = "agenix-se-keygen";
-        runtimeInputs = [
-          pkgs.coreutils
-          pkgs.gnugrep
-          pkgs.gnused
+        runtimeInputs = with pkgs; [
+          coreutils
+          gnugrep
+          gnused
         ];
         text = ''
           export AGE_PLUGIN_SE=${pkgs.age-plugin-se}/bin/age-plugin-se
@@ -65,18 +68,18 @@ in
     {
       packages = {
         inherit agenix;
+        inherit (pkgs) age-plugin-se;
         age-secure-enclave = pluginAge;
-        age-plugin-se = pkgs.age-plugin-se;
         agenix-se-keygen = keygen;
       };
 
       checks.agenix-se-keygen =
         pkgs.runCommand "agenix-se-keygen-test"
           {
-            nativeBuildInputs = [
-              pkgs.bash
-              pkgs.coreutils
-              pkgs.shellcheck
+            nativeBuildInputs = with pkgs; [
+              bash
+              coreutils
+              shellcheck
             ];
           }
           ''

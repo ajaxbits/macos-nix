@@ -1,15 +1,18 @@
 # First-switch bootstrap application. Importing this module never activates it.
 { inputs, config, ... }:
 let
-  hosts = config.macosNix.hosts;
-  mkDarwinConfiguration = config.macosNix.mkDarwinConfiguration;
+  inherit (config.macosNix)
+    hosts
+    mkDarwinConfiguration
+    ;
 in
 {
   perSystem =
     { config, pkgs, ... }:
     let
-      system = pkgs.stdenv.hostPlatform.system;
-      lix = pkgs.lixPackageSets.latest.lix;
+      inherit (pkgs.stdenv.hostPlatform) system;
+      inherit (pkgs.lixPackageSets.latest) lix;
+
       secretBaseName =
         path:
         let
@@ -71,12 +74,12 @@ in
           secretBaseName "/nix/store/00000000000000000000000000000000-github-token.age" == "github-token.age";
         pkgs.runCommand "macos-nix-bootstrap-test"
           {
-            nativeBuildInputs = [
-              pkgs.bash
-              pkgs.coreutils
-              pkgs.gnugrep
-              pkgs.jq
-              pkgs.shellcheck
+            nativeBuildInputs = with pkgs; [
+              bash
+              coreutils
+              gnugrep
+              jq
+              shellcheck
             ];
           }
           ''

@@ -1,65 +1,72 @@
 # Explicit feature composition for each profile.
 { config, ... }:
 {
-  flake.modules.darwin.foundation = {
-    imports = with config.flake.modules.darwin; [
-      host
-      user
-      nix
-      macos-defaults
-      brew
-      coreutils
-      aerospace
-      terminal
-      opencode
-      secretive
-      secrets
-    ];
-  };
+  flake.modules = {
+    darwin = {
+      foundation = {
+        imports = with config.flake.modules.darwin; [
+          aerospace-base
+          brew-base
+          coreutils
+          host
+          macos-defaults
+          nix
+          opencode
+          secretive
+          secrets
+          terminal
+          user
+        ];
+      };
 
-  flake.modules.darwin.personal = {
-    imports = with config.flake.modules.darwin; [
-      foundation
-      brew-personal
-      ebooks
-      podman
-    ];
-  };
+      personal = {
+        imports = with config.flake.modules.darwin; [
+          aerospace-personal
+          brew-personal
+          ebooks-personal
+          foundation
+          podman-personal
+        ];
+      };
 
-  # This profile is intentionally not deployable until real work host facts and
-  # the remaining work features are added.
-  flake.modules.darwin.work = {
-    imports = with config.flake.modules.darwin; [
-      foundation
-    ];
-  };
+      work = {
+        imports = with config.flake.modules.darwin; [
+          aerospace-work
+          brew-work
+          foundation
+        ];
+      };
+    };
 
-  flake.modules.homeManager.foundation = {
-    imports = with config.flake.modules.homeManager; [
-      host
-      user
-      coreutils
-      fish
-      terminal
-      vcs
-      secrets
-      shared-secrets
-      opencode
-    ];
-  };
+    homeManager = {
+      foundation = {
+        imports = with config.flake.modules.homeManager; [
+          coreutils
+          fish
+          host
+          opencode
+          secrets
+          shared-secrets
+          terminal
+          user
+          vcs
+        ];
+      };
 
-  flake.modules.homeManager.personal = {
-    imports = with config.flake.modules.homeManager; [
-      foundation
-      firefox-personal
-      coreutils-personal
-    ];
-  };
+      personal = {
+        imports = with config.flake.modules.homeManager; [
+          coreutils-personal
+          firefox-personal
+          foundation
+        ];
+      };
 
-  flake.modules.homeManager.work = {
-    imports = with config.flake.modules.homeManager; [
-      foundation
-      firefox-work
-    ];
+      work = {
+        imports = with config.flake.modules.homeManager; [
+          firefox-work
+          foundation
+        ];
+      };
+    };
   };
 }
