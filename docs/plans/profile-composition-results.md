@@ -71,7 +71,7 @@ deployable outputs.
 
 ### Brew and package boundaries
 
-Shared casks are AnkerWork, BetterDisplay, Fantastical, Firefox, Ice,
+Shared casks are AnkerWork, Barkeep, BetterDisplay, Fantastical, Firefox, Ice,
 KeepingYouAwake, Maccy, Rocket, Shottr, Tailscale, and VLC. Personal adds the
 remaining retained personal casks. Personal retains cleanup `zap` and automatic
 upgrade; work staging uses cleanup `none` and no automatic upgrade.

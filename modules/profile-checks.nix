@@ -236,6 +236,7 @@
       ];
       expectedPersonalCasks = builtins.sort builtins.lessThan [
         "ankerwork"
+        "barkeep"
         "balenaetcher"
         "betterdisplay"
         "bitwarden"
