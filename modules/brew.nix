@@ -6,6 +6,7 @@
       {
         homebrew = {
           enable = true;
+          onActivation.upgrade = true;
           casks = [
             "ankerwork"
             "betterdisplay"
@@ -24,12 +25,9 @@
         };
       };
 
-    brew-personal = {
-      homebrew.onActivation = {
-        cleanup = "zap";
-        upgrade = true;
-      };
-      homebrew.casks = [
+    brew-personal.homebrew = {
+      onActivation.cleanup = "zap";
+      casks = [
         "balenaetcher"
         "bitwarden"
         "discord"
@@ -43,11 +41,12 @@
       ];
     };
 
-    brew-work = {
-      homebrew.onActivation = {
-        cleanup = "none";
-        upgrade = false;
-      };
+    brew-work.homebrew = {
+      onActivation.cleanup = "none";
+      casks = [
+        "logseq"
+        "yojam"
+      ];
     };
   };
 }
