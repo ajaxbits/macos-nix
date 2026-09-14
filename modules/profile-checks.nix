@@ -130,6 +130,10 @@
         lib.any (
           name: lib.hasInfix "opencode" (lib.toLower name) || lib.hasInfix "coordinator" (lib.toLower name)
         ) (builtins.attrNames home.launchd.agents);
+      hasFoundationWallpaper =
+        configuration:
+        configuration.system.activationScripts ? setWallpaper
+        && lib.hasInfix "lava-dark.jpg" configuration.system.activationScripts.setWallpaper.text;
 
       invalidWork = builtins.tryEval (
         let
@@ -295,6 +299,10 @@
             && personal.security.pam.services.sudo_local.touchIdAuth
             && work.security.pam.services.sudo_local.touchIdAuth;
           message = "foundation modules are missing from a profile";
+        }
+        {
+          assertion = hasFoundationWallpaper personal && hasFoundationWallpaper work;
+          message = "foundation wallpaper activation is missing from a profile";
         }
         {
           assertion =
