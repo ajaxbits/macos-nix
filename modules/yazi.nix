@@ -33,7 +33,7 @@
         };
 
         plugins = {
-          inherit (pkgs.yaziPlugins) jump-to-char mime-ext smart-filter;
+          inherit (pkgs.yaziPlugins) jump-to-char mime-ext;
         };
 
         flavors = {
@@ -49,8 +49,8 @@
           mgr.prepend_keymap = [
             {
               on = "/";
-              run = "plugin smart-filter";
-              desc = "Smart filter and navigate";
+              run = "filter --smart";
+              desc = "Filter names (Enter to finish, then navigate)";
             }
             {
               on = "F";
@@ -74,6 +74,13 @@
               ];
               run = "cd ~/code";
               desc = "Go to ~/code";
+            }
+          ];
+          input.prepend_keymap = [
+            {
+              on = "<Esc>";
+              run = "close";
+              desc = "Cancel input";
             }
           ];
         };
@@ -322,6 +329,20 @@
           flavor = {
             dark = "gruvbox-dark";
             light = "gruvbox-dark";
+          };
+          # The built-in devicons have their own colors and require a Nerd Font.
+          # Clear every lookup table, including the metadata-based fallbacks.
+          icon = {
+            globs = [ ];
+            dirs = [ ];
+            files = [ ];
+            exts = [ ];
+            conds = [ ];
+          };
+          cmp = {
+            icon_file = "";
+            icon_folder = "";
+            icon_command = "";
           };
           mgr = {
             border_symbol = "│";
