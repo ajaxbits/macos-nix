@@ -30,8 +30,6 @@
             ActuationStrength = 0;
             Clicking = true;
             FirstClickThreshold = 0;
-            # Reserve three-finger gestures for Paneru's direct strip navigation.
-            TrackpadThreeFingerDrag = false;
           };
           NSGlobalDomain = {
             "com.apple.sound.beep.feedback" = 0;

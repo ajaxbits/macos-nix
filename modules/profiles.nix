@@ -47,6 +47,7 @@
           coreutils
           fish
           host
+          paneru-base
           secrets
           shared-secrets
           terminal
