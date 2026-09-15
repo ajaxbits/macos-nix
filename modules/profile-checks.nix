@@ -166,7 +166,6 @@
       realWorkWorkspaceAppIds = workspaceAppIds realWork;
 
       expectedPersonalSystemPackages = builtins.sort builtins.lessThan [
-        "aerospace"
         "bash-interactive"
         "curl"
         "darwin-help"
@@ -190,6 +189,7 @@
         "podman-compose"
         "podman-compose-docker-compat"
         "podman-docker-compat"
+        "paneru-with-lua-wrapped"
         "ripgrep"
         "sd"
         "secretive"
@@ -277,7 +277,7 @@
             && builtins.sort builtins.lessThan (caskNames realPersonal.homebrew.casks) == expectedPersonalCasks
             &&
               builtins.sort builtins.lessThan (builtins.attrNames realPersonal.launchd.user.agents)
-              == [ "aerospace" ]
+              == [ "paneru" ]
             &&
               builtins.sort builtins.lessThan (builtins.attrNames realPersonal.launchd.daemons) == [
                 "activate-system"
@@ -308,12 +308,16 @@
                 "v"
               ]
             &&
-              builtins.hashString "sha256" (builtins.toJSON realPersonal.services.aerospace.settings)
+              !realPersonal.services.aerospace.enable
+              && !realWork.services.aerospace.enable
+              && realPersonal.services.paneru.enable
+              && realWork.services.paneru.enable
+              && builtins.hashString "sha256" (builtins.toJSON realPersonal.services.aerospace.settings)
               == "b1492563ad6f884a107d177291a229004771301a764b360896e2573db2cc6f32"
             &&
               builtins.hashString "sha256" (builtins.toJSON realPersonalHome.programs.ghostty.settings)
               == "841c849aa4b6c5eeb160246ab996e6bd102f8f5eab57f38a1160cef4bd11411b";
-          message = "the real personal package, service, shell, AeroSpace, or Ghostty baseline changed";
+          message = "the real personal package, service, shell, window manager, or Ghostty baseline changed";
         }
         {
           assertion =
@@ -452,7 +456,7 @@
             && !(lib.elem "com.tinyspeck.slackmacgap" realPersonalWorkspaceAppIds)
             && lib.elem "com.tinyspeck.slackmacgap" realWorkWorkspaceAppIds
             && !(lib.elem "com.roam-research.desktop-app" realWorkWorkspaceAppIds);
-          message = "AeroSpace application routes are not profile-specific";
+          message = "the disabled AeroSpace rollback configuration lost its profile-specific routes";
         }
         {
           assertion =

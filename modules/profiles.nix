@@ -12,6 +12,7 @@
           host
           macos-defaults
           nix
+          paneru-base
           secretive
           secrets
           terminal
