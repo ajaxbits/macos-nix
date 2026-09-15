@@ -230,6 +230,7 @@
         "seventeenlands"
         "starship"
         "xh"
+        "yazi"
         "zoxide"
         "zoxide"
       ];
@@ -292,6 +293,7 @@
                 "nixre"
                 "t"
                 "take"
+                "y"
               ]
             &&
               builtins.sort builtins.lessThan (builtins.attrNames realPersonalHome.programs.fish.shellAliases)

@@ -50,6 +50,7 @@
           shared-secrets
           terminal
           user
+          yazi
           vcs
         ];
       };
