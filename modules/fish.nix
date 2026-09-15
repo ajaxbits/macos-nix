@@ -37,7 +37,7 @@ in
   config = {
     macosNix.mkRebuildFunction = mkRebuildFunction;
 
-    flake.modules.homeManager.fish =
+    flake.aspects.fish.homeManager =
       {
         config,
         pkgs,

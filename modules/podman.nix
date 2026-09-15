@@ -1,5 +1,5 @@
 {
-  flake.modules.darwin.podman-personal =
+  flake.aspects.podman-personal.darwin =
     { pkgs, lib, ... }:
     let
       inherit (lib) getExe;

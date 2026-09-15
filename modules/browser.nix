@@ -83,7 +83,7 @@ let
   };
 in
 {
-  flake.modules.homeManager.firefox-personal = { pkgs, ... }: {
+  flake.aspects.firefox-personal.homeManager = { pkgs, ... }: {
     programs.firefox = {
       enable = true;
       # Firefox is installed and managed entirely by home-manager from the Nix
@@ -131,7 +131,7 @@ in
     };
   };
 
-  flake.modules.homeManager.firefox-work = { pkgs, ... }: {
+  flake.aspects.firefox-work.homeManager = { pkgs, ... }: {
     programs.firefox = {
       enable = true;
       # Installed and managed entirely by home-manager from the Nix store

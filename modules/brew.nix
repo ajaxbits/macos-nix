@@ -1,7 +1,7 @@
 # Homebrew policy and casks (darwin only)
 {
-  flake.modules.darwin = {
-    brew-base =
+  flake.aspects = {
+    brew-base.darwin =
       { config, ... }:
       {
         homebrew = {
@@ -25,7 +25,7 @@
         };
       };
 
-    brew-personal.homebrew = {
+    brew-personal.darwin.homebrew = {
       onActivation.cleanup = "zap";
       casks = [
         "balenaetcher"
@@ -41,7 +41,7 @@
       ];
     };
 
-    brew-work.homebrew = {
+    brew-work.darwin.homebrew = {
       onActivation.cleanup = "none";
       casks = [
         "logseq"

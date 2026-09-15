@@ -1,6 +1,6 @@
 # Secretive, a program to store SSH keys in the Secure Enclave.
 {
-  flake.modules.darwin.secretive =
+  flake.aspects.secretive.darwin =
     { config, pkgs, ... }:
     let
       socket = "${config.macosNix.host.homeDirectory}/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh";

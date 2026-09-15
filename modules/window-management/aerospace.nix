@@ -1,6 +1,6 @@
 {
-  flake.modules.darwin = {
-    aerospace-base =
+  flake.aspects = {
+    aerospace-base.darwin =
       {
         config,
         pkgs,
@@ -220,7 +220,7 @@
         };
       };
 
-    aerospace-personal = {
+    aerospace-personal.darwin = {
       macosNix.aerospace.workspaces = {
         notes = {
           apps = [ "com.roam-research.desktop-app" ];
@@ -235,7 +235,7 @@
       };
     };
 
-    aerospace-work = {
+    aerospace-work.darwin = {
       macosNix.aerospace.workspaces = {
         meet = {
           name = "[M]eet";

@@ -1,7 +1,7 @@
 {
-  flake.modules = {
+  flake.aspects.terminal = {
     # Ghostty workspace in aerospace — terminal owns its own tiling integration
-    darwin.terminal =
+    darwin =
       { pkgs, ... }:
       {
         fonts.packages = [ pkgs.atkinson-hyperlegible-mono ];
@@ -32,7 +32,7 @@
           };
       };
 
-    homeManager.terminal =
+    homeManager =
       { pkgs, ... }:
       {
         programs.ghostty = {

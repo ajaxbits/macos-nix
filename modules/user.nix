@@ -60,11 +60,14 @@ let
     };
 in
 {
-  flake.modules = {
-    darwin = {
-      host = hostOptions;
+  flake.aspects = {
+    host = {
+      darwin = hostOptions;
+      homeManager = hostOptions;
+    };
 
-      user =
+    user = {
+      darwin =
         {
           config,
           pkgs,
@@ -103,12 +106,8 @@ in
             }
           ];
         };
-    };
 
-    homeManager = {
-      host = hostOptions;
-
-      user =
+      homeManager =
         { config, lib, ... }:
         let
           inherit (config.macosNix) host;

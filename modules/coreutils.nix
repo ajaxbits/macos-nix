@@ -1,9 +1,9 @@
 # The basic utils I always need
 { inputs, ... }:
 {
-  flake.modules = {
-    darwin = {
-      coreutils =
+  flake.aspects = {
+    coreutils = {
+      darwin =
         { pkgs, ... }:
         {
           environment.systemPackages = with pkgs; [
@@ -20,9 +20,7 @@
             inputs.nvim.packages.${pkgs.system}.default
           ];
         };
-    };
-    homeManager = {
-      coreutils =
+      homeManager =
         { pkgs, lib, ... }:
         {
           home.packages = with pkgs; [
@@ -74,18 +72,18 @@
             };
           };
         };
+    };
 
-      coreutils-personal =
+    coreutils-personal.homeManager =
         { pkgs, ... }:
         {
           home.packages = [ pkgs.seventeenlands ];
         };
 
-      coreutils-work =
+    coreutils-work.homeManager =
         { pkgs, ... }:
         {
           home.packages = [ pkgs.awscli2 ];
         };
-    };
   };
 }

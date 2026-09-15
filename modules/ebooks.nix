@@ -1,5 +1,5 @@
 {
-  flake.modules.darwin.ebooks-personal =
+  flake.aspects.ebooks-personal.darwin =
     {
       ...
     }:

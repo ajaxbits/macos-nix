@@ -6,6 +6,7 @@
 
     parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
+    flake-aspects.url = "github:denful/flake-aspects";
 
     darwin = {
       url = "github:lnl7/nix-darwin/master";

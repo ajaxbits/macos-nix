@@ -5,11 +5,11 @@
   ...
 }:
 {
-  flake.modules.darwin.profile-check-unselected-marker = {
+  flake.aspects.profile-check-unselected-marker.darwin = {
     environment.variables.PROFILE_CHECK_UNSELECTED = "incorrectly-selected";
   };
 
-  flake.modules.homeManager.profile-check-unselected-marker = {
+  flake.aspects.profile-check-unselected-marker.homeManager = {
     home.sessionVariables.PROFILE_CHECK_UNSELECTED = "incorrectly-selected";
   };
 

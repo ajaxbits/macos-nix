@@ -1,7 +1,7 @@
 # Version control: git + jujutsu (homeManager aspect)
 { ... }:
 {
-  flake.modules.homeManager.vcs =
+  flake.aspects.vcs.homeManager =
     {
       config,
       pkgs,

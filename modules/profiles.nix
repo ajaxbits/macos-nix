@@ -1,79 +1,58 @@
 # Explicit feature composition for each profile.
-{ config, ... }:
 {
-  flake.modules = {
-    darwin = {
-      foundation = {
-        imports = with config.flake.modules.darwin; [
-          ai-base
-          aerospace-base
-          brew-base
-          coreutils
-          host
-          macos-defaults
-          nix
-          paneru-base
-          secretive
-          secrets
-          terminal
-          user
-        ];
-      };
+  flake.aspects = { aspects, ... }: {
+    foundation = {
+      includes = with aspects; [
+        ai-base
+        aerospace-base
+        brew-base
+        coreutils
+        fish
+        host
+        macos-defaults
+        nix
+        paneru-base
+        secretive
+        secrets
+        shared-secrets
+        terminal
+        user
+        vcs
+        yazi
+      ];
 
-      personal = {
-        imports = with config.flake.modules.darwin; [
-          aerospace-personal
-          brew-personal
-          ebooks-personal
-          foundation
-          podman-personal
-        ];
-      };
-
-      work = {
-        imports = with config.flake.modules.darwin; [
-          aerospace-work
-          ai-work
-          brew-work
-          foundation
-        ];
-      };
+      darwin = { };
+      homeManager = { };
     };
 
-    homeManager = {
-      foundation = {
-        imports = with config.flake.modules.homeManager; [
-          ai-base
-          coreutils
-          fish
-          host
-          paneru-base
-          secrets
-          shared-secrets
-          terminal
-          user
-          yazi
-          vcs
-        ];
-      };
+    personal = {
+      includes = with aspects; [
+        ai-personal
+        aerospace-personal
+        brew-personal
+        coreutils-personal
+        ebooks-personal
+        foundation
+        firefox-personal
+        podman-personal
+      ];
 
-      personal = {
-        imports = with config.flake.modules.homeManager; [
-          ai-personal
-          coreutils-personal
-          firefox-personal
-          foundation
-        ];
-      };
+      darwin = { };
+      homeManager = { };
+    };
 
-      work = {
-        imports = with config.flake.modules.homeManager; [
-          ai-work
-          coreutils-work
-          firefox-work
-          foundation
-        ];
-      };
+    work = {
+      includes = with aspects; [
+        aerospace-work
+        ai-work
+        brew-work
+        coreutils-work
+        firefox-work
+        foundation
+      ];
+
+      darwin = { };
+      homeManager = { };
     };
   };
 }

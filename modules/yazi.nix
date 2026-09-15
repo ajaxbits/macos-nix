@@ -1,6 +1,6 @@
 # Lightweight, navigation-first file management with Yazi.
 {
-  flake.modules.homeManager.yazi =
+  flake.aspects.yazi.homeManager =
     { pkgs, ... }:
     let
       gruvboxDark = pkgs.fetchFromGitHub {

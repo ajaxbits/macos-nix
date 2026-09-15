@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.modules.homeManager.paneru-base = {
+  flake.aspects.paneru-base.homeManager = {
     # macOS also reads these host-specific preferences. The trackpad domains
     # managed by nix-darwin alone do not update this copy.
     targets.darwin.currentHostDefaults.NSGlobalDomain = {
@@ -12,8 +12,7 @@
     };
   };
 
-  flake.modules.darwin = {
-    paneru-base =
+  flake.aspects.paneru-base.darwin =
       { lib, ... }:
       {
         imports = [ inputs.paneru.darwinModules.paneru ];
@@ -120,6 +119,4 @@
           };
         };
       };
-
-  };
 }

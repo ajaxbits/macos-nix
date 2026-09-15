@@ -1,7 +1,7 @@
 # Nix/Lix package manager and nixpkgs configuration
 { inputs, ... }:
 {
-  flake.modules.darwin.nix =
+  flake.aspects.nix.darwin =
     { config, pkgs, ... }:
     let
       lixPackageSet = pkgs.lixPackageSets.latest;

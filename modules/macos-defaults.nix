@@ -1,5 +1,5 @@
 {
-  flake.modules.darwin.macos-defaults =
+  flake.aspects.macos-defaults.darwin =
     { config, lib, ... }:
     let
       inherit (config.macosNix) host;

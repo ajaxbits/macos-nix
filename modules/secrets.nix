@@ -15,12 +15,12 @@ let
     };
 in
 {
-  flake.modules = {
-    darwin.secrets = {
-      imports = [ inputs.agenix.darwinModules.default ];
-    };
-    homeManager = {
-      secrets =
+  flake.aspects = {
+    secrets = {
+      darwin = {
+        imports = [ inputs.agenix.darwinModules.default ];
+      };
+      homeManager =
         { config, pkgs, ... }:
         let
           pluginAge = pluginAgeFor pkgs;
@@ -40,10 +40,10 @@ in
             pkgs.age-plugin-se
           ];
         };
+    };
 
-      shared-secrets = {
-        age.secrets.kagi_api_key.file = ../secrets/kagi_api_key.age;
-      };
+    shared-secrets.homeManager = {
+      age.secrets.kagi_api_key.file = ../secrets/kagi_api_key.age;
     };
   };
 
