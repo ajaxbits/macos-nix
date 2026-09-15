@@ -231,8 +231,16 @@
 
     aerospace-work = {
       macosNix.aerospace.workspaces = {
+        meet = {
+          name = "[M]eet";
+          binding = "m";
+          apps = [
+            "net.imput.helium.app.kjgfgldnnfoeklkmfkjfagphfepbbdan"
+            "us.zoom.xos"
+          ];
+        };
         notes = {
-          apps = [ "com.electron.logseq" ];
+          apps = [ "com.logseq.logseq" ];
           binding = "n";
           name = "[N]otes";
         };

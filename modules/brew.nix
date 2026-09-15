@@ -46,6 +46,7 @@
       casks = [
         "logseq"
         "yojam"
+        "zoom"
       ];
     };
   };
