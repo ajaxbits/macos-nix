@@ -67,6 +67,7 @@
       work = {
         imports = with config.flake.modules.homeManager; [
           ai-work
+          coreutils-work
           firefox-work
           foundation
         ];
