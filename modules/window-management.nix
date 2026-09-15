@@ -8,9 +8,16 @@
         ...
       }:
       let
+        inherit (lib)
+          concatMapAttrs
+          concatMap
+          mkOption
+          types
+          ;
+
         mod = "alt";
 
-        sharedWorkspaces = {
+        baseWorkspaces = {
           "0".name = "10";
           "1".name = "1";
           "2".name = "2";
@@ -38,120 +45,122 @@
           };
         };
 
-        workspaces = sharedWorkspaces // config.macosNix.aerospace.workspaces;
+        workspaces = builtins.mapAttrs (
+          id: workspace:
+          workspace
+          // {
+            apps = workspace.apps or [ ];
+            binding = if (workspace.binding or null) == null then id else workspace.binding;
+          }
+        ) (baseWorkspaces // config.macosNix.aerospace.workspaces);
 
-        workspacesWithDefaultValues = builtins.mapAttrs (
-          name: value: value // { binding = value.binding or name; }
-        ) workspaces;
-
-        assignWorkspace = ws: "workspace ${ws.name}";
+        switchToWorkspace = ws: "workspace ${ws.name}";
         moveToWorkspace = ws: "move-node-to-workspace ${ws.name}";
 
-        wsAssignments = builtins.listToAttrs (
-          map (ws: {
-            name = "${mod}-${ws.binding}";
-            value = assignWorkspace ws;
-          }) (builtins.attrValues workspacesWithDefaultValues)
+        appCondition =
+          app:
+          if builtins.isString app || app.id != null then
+            { app-id = if builtins.isString app then app else app.id; }
+          else
+            { app-name-regex-substring = "^${lib.escapeRegex app.name}$"; };
+
+        appMatcherType = types.either types.str (
+          types.addCheck (types.submodule {
+            options = {
+              id = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+              };
+              name = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+              };
+            };
+          }) (app: ((app.id or null) == null) != ((app.name or null) == null))
         );
 
-        wsMoves = builtins.listToAttrs (
-          map (ws: {
-            name = "${mod}-shift-${ws.binding}";
-            value = moveToWorkspace ws;
-          }) (builtins.attrValues workspacesWithDefaultValues)
-        );
+        workspaceBindings = concatMapAttrs (_: ws: {
+          "${mod}-${ws.binding}" = switchToWorkspace ws;
+          "${mod}-shift-${ws.binding}" = moveToWorkspace ws;
+        }) workspaces;
 
-        _workspacesWithApps = builtins.filter (
-          name: builtins.hasAttr "apps" workspacesWithDefaultValues.${name}
-        ) (builtins.attrNames workspacesWithDefaultValues);
-
-        workspaceWindowDetectedCallbacks =
+        workspaceRules = concatMap (
           ws:
           map (app: {
-            "if".app-id = app;
+            "if" = appCondition app // {
+              during-aerospace-startup = true;
+            };
             run = [ (moveToWorkspace ws) ];
-          }) ws.apps;
+          }) ws.apps
+        ) (builtins.attrValues workspaces);
 
-        mainBindings =
-          wsAssignments
-          // wsMoves
-          // {
-            "${mod}-slash" = "layout tiles horizontal vertical";
-            "${mod}-comma" = "layout accordion horizontal vertical";
+        runAndReturnToMain = command: [
+          command
+          "mode main"
+        ];
 
-            cmd-h = [ ];
-            cmd-alt-h = [ ];
+        mainBindings = workspaceBindings // {
+          "${mod}-slash" = "layout tiles horizontal vertical";
+          "${mod}-comma" = "layout accordion horizontal vertical";
 
-            "${mod}-h" = "focus left";
-            "${mod}-j" = "focus down";
-            "${mod}-k" = "focus up";
-            "${mod}-l" = "focus right";
+          cmd-h = [ ];
+          cmd-alt-h = [ ];
 
-            "${mod}-f" = "fullscreen";
+          "${mod}-h" = "focus left";
+          "${mod}-j" = "focus down";
+          "${mod}-k" = "focus up";
+          "${mod}-l" = "focus right";
 
-            "${mod}-shift-h" = "move left";
-            "${mod}-shift-j" = "move down";
-            "${mod}-shift-k" = "move up";
-            "${mod}-shift-l" = "move right";
+          "${mod}-f" = "fullscreen";
 
-            "${mod}-shift-minus" = "resize smart -50";
-            "${mod}-shift-equal" = "resize smart +50";
+          "${mod}-shift-h" = "move left";
+          "${mod}-shift-j" = "move down";
+          "${mod}-shift-k" = "move up";
+          "${mod}-shift-l" = "move right";
 
-            "${mod}-tab" = "workspace-back-and-forth";
-            "${mod}-shift-tab" = "move-workspace-to-monitor --wrap-around next";
+          "${mod}-shift-minus" = "resize smart -50";
+          "${mod}-shift-equal" = "resize smart +50";
 
-            "${mod}-shift-semicolon" = "mode service";
-          };
+          "${mod}-tab" = "workspace-back-and-forth";
+          "${mod}-shift-tab" = "move-workspace-to-monitor --wrap-around next";
+
+          "${mod}-shift-semicolon" = "mode service";
+        };
 
         serviceBindings = {
-          esc = [
-            "reload-config"
-            "mode main"
-          ];
-          r = [
-            "flatten-workspace-tree"
-            "mode main"
-          ];
-          f = [
-            "layout floating tiling"
-            "mode main"
-          ];
-          backspace = [
-            "close-all-windows-but-current"
-            "mode main"
-          ];
-          "${mod}-shift-h" = [
-            "join-with left"
-            "mode main"
-          ];
-          "${mod}-shift-j" = [
-            "join-with down"
-            "mode main"
-          ];
-          "${mod}-shift-k" = [
-            "join-with up"
-            "mode main"
-          ];
-          "${mod}-shift-l" = [
-            "join-with right"
-            "mode main"
-          ];
+          esc = runAndReturnToMain "reload-config";
+          r = runAndReturnToMain "flatten-workspace-tree";
+          f = runAndReturnToMain "layout floating tiling";
+          backspace = runAndReturnToMain "close-all-windows-but-current";
+          "${mod}-shift-h" = runAndReturnToMain "join-with left";
+          "${mod}-shift-j" = runAndReturnToMain "join-with down";
+          "${mod}-shift-k" = runAndReturnToMain "join-with up";
+          "${mod}-shift-l" = runAndReturnToMain "join-with right";
         };
       in
       {
-        options.macosNix.aerospace.workspaces = lib.mkOption {
-          type = lib.types.attrsOf (
-            lib.types.submodule {
+        options.macosNix.aerospace.workspaces = mkOption {
+          type = types.attrsOf (
+            types.submodule {
               options = {
-                apps = lib.mkOption {
-                  type = lib.types.listOf lib.types.str;
+                apps = mkOption {
+                  type = types.listOf appMatcherType;
                   default = [ ];
+                  example = [
+                    "org.mozilla.firefox"
+                    { name = "Firefox"; }
+                    { id = "com.google.Chrome"; }
+                  ];
+                  description = ''
+                    Applications assigned to this workspace. A string is treated as a bundle ID;
+                    use an attribute set with either `id` or `name` for an explicit match.
+                  '';
                 };
-                binding = lib.mkOption {
-                  type = lib.types.nullOr lib.types.str;
+                binding = mkOption {
+                  type = types.nullOr types.str;
                   default = null;
                 };
-                name = lib.mkOption { type = lib.types.str; };
+                name = mkOption { type = types.str; };
               };
             }
           );
@@ -194,21 +203,15 @@
                 service.binding = serviceBindings;
               };
 
-              on-window-detected =
-                lib.flatten (
-                  map (
-                    attrName: workspaceWindowDetectedCallbacks workspacesWithDefaultValues.${attrName}
-                  ) _workspacesWithApps
-                )
-                ++ [
-                  {
-                    "if" = {
-                      app-id = "org.mozilla.firefox";
-                      window-title-regex-substring = "Picture-in-Picture";
-                    };
-                    run = [ "layout floating" ];
-                  }
-                ];
+              on-window-detected = workspaceRules ++ [
+                {
+                  "if" = {
+                    app-id = "org.mozilla.firefox";
+                    window-title-regex-substring = "Picture-in-Picture";
+                  };
+                  run = [ "layout floating" ];
+                }
+              ];
             };
           };
         };
@@ -235,8 +238,8 @@
           name = "[M]eet";
           binding = "m";
           apps = [
-            "net.imput.helium.app.kjgfgldnnfoeklkmfkjfagphfepbbdan"
             "us.zoom.xos"
+            { name = "Google Meet"; }
           ];
         };
         notes = {
