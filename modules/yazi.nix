@@ -54,6 +54,10 @@
               desc = "Open $SHELL here";
             }
             {
+              on = "<C-p>";
+              run = "shell -- qlmanage -p %s";
+            }
+            {
               on = "/";
               run = "filter --smart";
               desc = "Filter names (Enter to finish, then navigate)";
