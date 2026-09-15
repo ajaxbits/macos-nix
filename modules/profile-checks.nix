@@ -224,9 +224,9 @@
         "jq"
         "jujutsu"
         "jujutsu"
-        "lazygit"
         "man-db"
         "nix-output-monitor"
+        "opencode2"
         "seventeenlands"
         "starship"
         "xh"
@@ -289,7 +289,6 @@
               builtins.sort builtins.lessThan (builtins.attrNames realPersonalHome.programs.fish.functions) == [
                 "__fish_command_not_found_handler"
                 "js"
-                "lg"
                 "nixre"
                 "t"
                 "take"
@@ -307,13 +306,13 @@
                 "lt"
                 "v"
               ]
+            && !realPersonal.services.aerospace.enable
+            && !realWork.services.aerospace.enable
+            && realPersonal.services.paneru.enable
+            && realWork.services.paneru.enable
             &&
-              !realPersonal.services.aerospace.enable
-              && !realWork.services.aerospace.enable
-              && realPersonal.services.paneru.enable
-              && realWork.services.paneru.enable
-              && builtins.hashString "sha256" (builtins.toJSON realPersonal.services.aerospace.settings)
-              == "b1492563ad6f884a107d177291a229004771301a764b360896e2573db2cc6f32"
+              builtins.hashString "sha256" (builtins.toJSON realPersonal.services.aerospace.settings)
+              == "a79f94161367babaaa3ad5f0ffea560ce848b2d4abeffed9ce29a5ba6cfaa4b6"
             &&
               builtins.hashString "sha256" (builtins.toJSON realPersonalHome.programs.ghostty.settings)
               == "841c849aa4b6c5eeb160246ab996e6bd102f8f5eab57f38a1160cef4bd11411b";
@@ -387,8 +386,8 @@
             && workHasKagi
             && !(lib.elem "claude-code" personalHomePackages)
             && lib.elem "claude-code" workHomePackages
-            && !(lib.elem "opencode2" personalHomePackages)
-            && !(lib.elem "opencode2" workHomePackages)
+            && lib.elem "opencode2" personalHomePackages
+            && lib.elem "opencode2" workHomePackages
             && !(lib.elem "opencode" personalHomePackages)
             && !(lib.elem "opencode" workHomePackages)
             && !(lib.elem "claude" personalCasks)

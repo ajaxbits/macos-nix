@@ -6,6 +6,8 @@
   ...
 }:
 let
+  inherit (inputs.flake-aspects.lib lib) forward resolve;
+
   hosts = {
     Alexs-MacBook-Air = {
       outputName = "Alexs-MacBook-Air";
@@ -80,10 +82,8 @@ let
     host:
     if hasEmptyRequiredFact host then
       throw "host output, hostname, username, home, and flake directory must be non-empty"
-    else if !(builtins.hasAttr host.profile config.flake.modules.darwin) then
-      throw "host ${host.outputName} selects unknown Darwin profile ${host.profile}"
-    else if !(builtins.hasAttr host.profile config.flake.modules.homeManager) then
-      throw "host ${host.outputName} selects unknown Home Manager profile ${host.profile}"
+    else if !(builtins.hasAttr host.profile config.flake.aspects) then
+      throw "host ${host.outputName} selects unknown profile aspect ${host.profile}"
     else if host.profile == "work" && !host.synthetic && hasPlaceholderIdentity host then
       throw "real work host ${host.outputName} requires an explicit Git/jj identity"
     else
@@ -100,30 +100,41 @@ let
     uncheckedHost:
     let
       host = validateHost uncheckedHost;
-      darwinProfile = config.flake.modules.darwin.${host.profile};
-      homeProfile = config.flake.modules.homeManager.${host.profile};
-    in
-    inputs.darwin.lib.darwinSystem {
-      system = host.system;
-      modules = [
-        {
+      profile = config.flake.aspects.${host.profile};
+      hostAspect = {
+        includes = [
+          profile
+          (forward {
+            each = [ host ];
+            fromClass = _: "homeManager";
+            intoClass = _: "darwin";
+            intoPath = value: [
+              "home-manager"
+              "users"
+              value.userName
+            ];
+            fromAspect = _: profile;
+          })
+        ];
+
+        darwin = {
+          imports = [ inputs.home-manager.darwinModules.home-manager ];
+
           macosNix.host = host;
           networking.hostName = host.hostName;
-        }
-        darwinProfile
-        inputs.home-manager.darwinModules.home-manager
-        {
+
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
             backupFileExtension = host.homeManagerBackupExtension;
-            users.${host.userName}.imports = [
-              { macosNix.host = host; }
-              homeProfile
-            ];
+            users.${host.userName}.macosNix.host = host;
           };
-        }
-      ];
+        };
+      };
+    in
+    inputs.darwin.lib.darwinSystem {
+      inherit (host) system;
+      modules = [ (resolve "darwin" [ ] hostAspect) ];
     };
 in
 {
