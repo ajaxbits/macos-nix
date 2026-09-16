@@ -92,6 +92,8 @@
       workSystemPackages = packageNames work.environment.systemPackages;
       personalHomePackages = packageNames personalHome.home.packages;
       workHomePackages = packageNames workHome.home.packages;
+      personalFishFunctions = builtins.attrNames personalHome.programs.fish.functions;
+      workFishFunctions = builtins.attrNames workHome.programs.fish.functions;
       caskNames = casks: map (cask: if builtins.isString cask then cask else cask.name) casks;
       personalCasks = caskNames personal.homebrew.casks;
       workCasks = caskNames work.homebrew.casks;
@@ -357,6 +359,14 @@
             && !(lib.elem "vfkit" workSystemPackages)
             && !workHasDockerCompat;
           message = "the work profile contains personal container tooling";
+        }
+        {
+          assertion =
+            lib.elem "awscli2" workHomePackages
+            && !(lib.elem "awscli2" personalHomePackages)
+            && lib.elem "aws-profile" workFishFunctions
+            && !(lib.elem "aws-profile" personalFishFunctions);
+          message = "AWS tooling is not isolated to the work profile";
         }
         {
           assertion =

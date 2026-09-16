@@ -41,8 +41,8 @@
         includes = with aspects; [
           aerospace-work
           ai-work
+          aws-work
           brew-work
-          coreutils-work
           firefox-work
           foundation
         ];

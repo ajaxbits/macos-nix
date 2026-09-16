@@ -79,11 +79,5 @@
       {
         home.packages = [ pkgs.seventeenlands ];
       };
-
-    coreutils-work.homeManager =
-      { pkgs, ... }:
-      {
-        home.packages = [ pkgs.awscli2 ];
-      };
   };
 }
