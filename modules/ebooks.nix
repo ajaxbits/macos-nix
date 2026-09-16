@@ -1,12 +1,8 @@
 {
-  flake.aspects.ebooks-personal.darwin =
-    {
-      ...
-    }:
-    {
-      homebrew = {
-        enable = true;
-        casks = [ "calibre" ];
-      };
+  flake.aspects.ebooks-personal.darwin = _: {
+    homebrew = {
+      enable = true;
+      casks = [ "calibre" ];
     };
+  };
 }
