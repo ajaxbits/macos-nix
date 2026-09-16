@@ -364,6 +364,8 @@
           assertion =
             lib.elem "awscli2" workHomePackages
             && !(lib.elem "awscli2" personalHomePackages)
+            && lib.elem "aws-mcp-profile-proxy" workHomePackages
+            && !(lib.elem "aws-mcp-profile-proxy" personalHomePackages)
             && lib.elem "aws-profile" workFishFunctions
             && !(lib.elem "aws-profile" personalFishFunctions);
           message = "AWS tooling is not isolated to the work profile";
