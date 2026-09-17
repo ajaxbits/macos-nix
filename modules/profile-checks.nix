@@ -126,11 +126,6 @@
           lib.hasInfix "opencode" lowerPath || lib.hasInfix "/mcp/" lowerPath
         ) (builtins.attrNames home.home.file);
       workHasDockerCompat = lib.any (name: lib.hasInfix "docker-compat" name) workSystemPackages;
-      hasOpenCodeCoordinator =
-        home:
-        lib.any (
-          name: lib.hasInfix "opencode" (lib.toLower name) || lib.hasInfix "coordinator" (lib.toLower name)
-        ) (builtins.attrNames home.launchd.agents);
       hasFoundationWallpaper =
         configuration:
         let
@@ -392,6 +387,12 @@
             && !(lib.elem "opencode" workHomePackages)
             && !(lib.elem "claude" personalCasks)
             && lib.elem "claude" workCasks
+            && !(lib.elem "claude-update-upside-plugins" personalHomePackages)
+            && !(lib.elem "opencode-refresh-upside-skills" personalHomePackages)
+            && !(lib.elem "opencode-sync-upside-skills" personalHomePackages)
+            && lib.elem "claude-update-upside-plugins" workHomePackages
+            && lib.elem "opencode-refresh-upside-skills" workHomePackages
+            && lib.elem "opencode-sync-upside-skills" workHomePackages
             && !(hasManagedOpenCodeConfig personalHome)
             && !(hasManagedOpenCodeConfig workHome)
             && workHome.age.identityPaths == [ workHost.ageIdentityPath ]
@@ -404,11 +405,12 @@
         }
         {
           assertion =
-            !(hasOpenCodeCoordinator personalHome)
-            && !(hasOpenCodeCoordinator workHome)
-            && builtins.attrNames personalHome.launchd.agents == [ "activate-agenix" ]
-            && builtins.attrNames workHome.launchd.agents == [ "activate-agenix" ];
-          message = "the age integration introduced an unapproved OpenCode coordinator";
+            builtins.attrNames personalHome.launchd.agents == [ "activate-agenix" ]
+            && builtins.attrNames workHome.launchd.agents == [
+              "activate-agenix"
+              "opencode-upside-sync"
+            ];
+          message = "the profile launch agents differ from the approved exact sets";
         }
         {
           assertion =
