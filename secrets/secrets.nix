@@ -11,4 +11,6 @@ in
     ajax
     workMac
   ];
+  "jfrog_username.age".publicKeys = [ workMac ];
+  "jfrog_token.age".publicKeys = [ workMac ];
 }

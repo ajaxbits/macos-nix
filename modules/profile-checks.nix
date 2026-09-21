@@ -429,21 +429,27 @@
         }
         {
           assertion =
+            personalHome.launchd.agents.activate-agenix.config.KeepAlive == false
+            && workHome.launchd.agents.activate-agenix.config.KeepAlive == false;
+          message = "agenix must run on load without being continuously relaunched";
+        }
+        {
+          assertion =
             !personalHasTerraformToken
             && !workHasTerraformToken
             && !(personalHome.launchd.agents ? terraform-cloud-token-environment)
             && !(workHome.launchd.agents ? terraform-cloud-token-environment)
-            && !(lib.elem "terraform-token-shells" personalHomePackages)
-            && lib.elem "terraform-token-shells" workHomePackages
-            && !(personalHome.xdg.configFile ? "fish/conf.d/terraform-cloud-token.fish")
-            && workHome.xdg.configFile ? "fish/conf.d/terraform-cloud-token.fish"
+            && !(lib.elem "work-shell-secrets" personalHomePackages)
+            && lib.elem "work-shell-secrets" workHomePackages
+            && !(personalHome.xdg.configFile ? "fish/conf.d/work-shell-secrets.fish")
+            && workHome.xdg.configFile ? "fish/conf.d/work-shell-secrets.fish"
             && lib.all (name: workHome.home.file.${name}.source != null) [
               ".zshenv"
               ".bashrc"
               ".bash_profile"
               ".profile"
             ];
-          message = "the Terraform Cloud token must be loaded at shell startup only by the work profile";
+          message = "work secrets must be loaded at shell startup only by the work profile";
         }
         {
           assertion =

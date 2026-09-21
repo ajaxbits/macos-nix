@@ -45,8 +45,15 @@
           brew-work
           firefox-work
           foundation
-          terraform-token-work
+          work-shell-secrets
         ];
+
+        homeManager =
+          { config, pkgs, ... }:
+          {
+            home.packages = [ pkgs.poetry ];
+            home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
+          };
       };
     };
 }

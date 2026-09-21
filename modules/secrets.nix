@@ -38,7 +38,12 @@ in
         imports = [ inputs.agenix.darwinModules.default ];
       };
       homeManager =
-        { config, pkgs, ... }:
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }:
         let
           pluginAge = pluginAgeFor pkgs;
           agenix = agenixFor pkgs;
@@ -56,6 +61,10 @@ in
             pluginAge
             pkgs.age-plugin-se
           ];
+
+          # The upstream module's inverse KeepAlive conditions cover every exit,
+          # causing this successful one-shot agent to relaunch every ten seconds.
+          launchd.agents.activate-agenix.config.KeepAlive = lib.mkForce false;
         };
     };
 
@@ -63,21 +72,28 @@ in
       age.secrets.kagi_api_key.file = ../secrets/kagi_api_key.age;
     };
 
-    terraform-token-work.homeManager =
+    work-shell-secrets.homeManager =
       { config, pkgs, ... }:
       let
-        shells = import ../lib/terraform-token-shells.nix {
+        jfrog = import ../lib/jfrog-shell-env.nix { inherit pkgs; };
+        shells = import ../lib/work-shell-secrets.nix {
           inherit pkgs;
           identityPath = config.macosNix.host.ageIdentityPath;
-          encryptedFile = ../secrets/terraform_cloud_token.age;
+          secrets = {
+            TF_TOKEN_app_terraform_io = ../secrets/terraform_cloud_token.age;
+            JFROG_USERNAME = ../secrets/jfrog_username.age;
+            JFROG_TOKEN = ../secrets/jfrog_token.age;
+          };
+          posixExtra = jfrog.posix;
+          fishExtra = jfrog.fish;
         };
-        shellEnv = "${shells}/share/terraform-token/env.sh";
+        shellEnv = "${shells}/share/work-shell-secrets/env.sh";
       in
       {
         home.packages = [ shells ];
         # These run for new shells regardless of the parent application's env.
-        xdg.configFile."fish/conf.d/terraform-cloud-token.fish".source =
-          "${shells}/share/terraform-token/env.fish";
+        xdg.configFile."fish/conf.d/work-shell-secrets.fish".source =
+          "${shells}/share/work-shell-secrets/env.fish";
         home.file = {
           ".zshenv".source = shellEnv;
           ".bashrc".source = shellEnv;
@@ -94,10 +110,17 @@ in
       agenix = agenixFor pkgs;
       identityFixture = "/agenix-test/Library/Application Support/agenix/identity.txt";
       encryptedFixture = pkgs.writeText "agenix-test.age" "";
-      tokenShellsFixture = import ../lib/terraform-token-shells.nix {
+      jfrogFixture = import ../lib/jfrog-shell-env.nix { inherit pkgs; };
+      tokenShellsFixture = import ../lib/work-shell-secrets.nix {
         inherit pkgs;
-        identityPath = "/terraform-token-test/Library/Application Support/agenix/identity.txt";
-        encryptedFile = "/terraform-token-test/token file.age";
+        identityPath = "/work-shell-secrets-test/Library/Application Support/agenix/identity.txt";
+        secrets = {
+          TF_TOKEN_app_terraform_io = "/work-shell-secrets-test/terraform token.age";
+          JFROG_USERNAME = "/work-shell-secrets-test/jfrog username.age";
+          JFROG_TOKEN = "/work-shell-secrets-test/jfrog token.age";
+        };
+        posixExtra = jfrogFixture.posix;
+        fishExtra = jfrogFixture.fish;
       };
       testHome =
         identityPaths:
@@ -197,8 +220,8 @@ in
               touch "$out"
             '';
 
-        terraform-token-shells =
-          pkgs.runCommand "terraform-token-shells-test"
+        work-shell-secrets =
+          pkgs.runCommand "work-shell-secrets-test"
             {
               nativeBuildInputs = with pkgs; [
                 age
@@ -211,7 +234,7 @@ in
               ];
             }
             ''
-              cp ${../tests/terraform-token-shells.sh} ./test.sh
+              cp ${../tests/work-shell-secrets.sh} ./test.sh
               shellcheck ./test.sh
               bash ./test.sh ${tokenShellsFixture} ${pkgs.fish}/bin/fish ${pkgs.zsh}/bin/zsh
               touch "$out"
