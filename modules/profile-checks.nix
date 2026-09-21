@@ -115,6 +115,8 @@
       ];
       personalHasKagi = personalHome.age.secrets ? kagi_api_key;
       workHasKagi = workHome.age.secrets ? kagi_api_key;
+      personalHasTerraformToken = personalHome.age.secrets ? terraform_cloud_token;
+      workHasTerraformToken = workHome.age.secrets ? terraform_cloud_token;
       hasManagedOpenCodeConfig =
         home:
         home.programs.opencode.enable
@@ -418,11 +420,30 @@
         {
           assertion =
             builtins.attrNames personalHome.launchd.agents == [ "activate-agenix" ]
-            && builtins.attrNames workHome.launchd.agents == [
-              "activate-agenix"
-              "opencode-upside-sync"
-            ];
+            &&
+              builtins.attrNames workHome.launchd.agents == [
+                "activate-agenix"
+                "opencode-upside-sync"
+              ];
           message = "the profile launch agents differ from the approved exact sets";
+        }
+        {
+          assertion =
+            !personalHasTerraformToken
+            && !workHasTerraformToken
+            && !(personalHome.launchd.agents ? terraform-cloud-token-environment)
+            && !(workHome.launchd.agents ? terraform-cloud-token-environment)
+            && !(lib.elem "terraform-token-shells" personalHomePackages)
+            && lib.elem "terraform-token-shells" workHomePackages
+            && !(personalHome.xdg.configFile ? "fish/conf.d/terraform-cloud-token.fish")
+            && workHome.xdg.configFile ? "fish/conf.d/terraform-cloud-token.fish"
+            && lib.all (name: workHome.home.file.${name}.source != null) [
+              ".zshenv"
+              ".bashrc"
+              ".bash_profile"
+              ".profile"
+            ];
+          message = "the Terraform Cloud token must be loaded at shell startup only by the work profile";
         }
         {
           assertion =

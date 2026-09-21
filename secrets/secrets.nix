@@ -7,4 +7,8 @@ in
     ajax
     workMac
   ];
+  "terraform_cloud_token.age".publicKeys = [
+    ajax
+    workMac
+  ];
 }

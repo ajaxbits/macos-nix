@@ -5,7 +5,8 @@ default:
     @just --list
 
 secrets_dir := "secrets"
-identity := env_var_or_default("AGENIX_IDENTITY", env_var("HOME") + "/.ssh/bitwarden")
+detected_identity := `if [ -f "$HOME/Library/Application Support/agenix/identity.txt" ]; then printf '%s' "$HOME/Library/Application Support/agenix/identity.txt"; else printf '%s' "$HOME/.ssh/bitwarden"; fi`
+identity := env_var_or_default("AGENIX_IDENTITY", detected_identity)
 agenix := "nix run .#agenix --"
 
 # Derive and print your SSH public key (paste into secrets/secrets.nix)

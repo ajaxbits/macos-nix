@@ -45,6 +45,7 @@
           brew-work
           firefox-work
           foundation
+          terraform-token-work
         ];
       };
     };
