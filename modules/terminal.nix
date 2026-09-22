@@ -43,7 +43,8 @@
           settings = {
             copy-on-select = true;
             desktop-notifications = true;
-            font-family = "Atkinson Hyperlegible Mono Light";
+            window-decoration = "none";
+            font-family = "Atkinson Hyperlegible Mono";
             font-family-bold = "Atkinson Hyperlegible Mono SemiBold";
             font-family-bold-italic = "Atkinson Hyperlegible Mono SemiBold Italic";
             font-size = 13;
