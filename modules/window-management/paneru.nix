@@ -1,7 +1,7 @@
 { inputs, ... }:
 {
   flake.aspects.paneru-base.darwin =
-    { ... }:
+    { pkgs, ... }:
     {
       imports = [ inputs.paneru.darwinModules.paneru ];
       # Paneru manages one independent strip per display and requires the
@@ -10,10 +10,32 @@
 
       services.paneru = {
         enable = true;
+        # Remove after https://github.com/karinushka/paneru/pull/399 is merged
+        # and the flake input includes it. Scroll events can omit side-specific
+        # modifier flags, especially when keyboard and pointing devices differ.
+        package =
+          inputs.paneru.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs
+            (oldAttrs: {
+              patches = (oldAttrs.patches or [ ]) ++ [ ./paneru-scroll-modifiers.patch ];
+            });
         settings = {
-          # A dedicated thumb modifier avoids relying on a home-row hold-tap
-          # when scrolling and leaves ordinary trackpad gestures untouched.
-          swipe.scroll.modifier = "ralt";
+          # Paneru's deserialization fallback produces an empty list when the
+          # entire options table is absent, making resize a no-op and leaving
+          # the status menu empty. Keep its documented defaults explicit.
+          options.preset_column_widths = [
+            0.25
+            0.33333
+            0.5
+            0.66667
+            0.75
+            1.0
+            1.5
+            2.0
+          ];
+
+          # Paneru intercepts scrolling only while Option is held and leaves
+          # ordinary trackpad gestures untouched.
+          swipe.scroll.modifier = "alt";
 
           bindings = {
             window_focus_west = "alt - h";
@@ -26,8 +48,8 @@
             window_swap_north = "alt + shift - k";
             window_swap_east = "alt + shift - l";
 
-            window_resize = "alt - r";
-            window_shrink = "alt + shift - r";
+            window_resize = "alt - rightbracket";
+            window_shrink = "alt - leftbracket";
             window_fullwidth = "alt - f";
             window_manage = "alt + shift - space";
             window_stack = "alt - slash";

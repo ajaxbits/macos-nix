@@ -168,11 +168,20 @@
         let
           settings = system.services.paneru.settings;
         in
-        !(settings ? options)
+        settings.options.preset_column_widths == [
+          0.25
+          0.33333
+          0.5
+          0.66667
+          0.75
+          1.0
+          1.5
+          2.0
+        ]
         && !(settings.swipe ? gesture)
-        && settings.swipe.scroll.modifier == "ralt"
-        && settings.bindings.window_resize == "alt - r"
-        && settings.bindings.window_shrink == "alt + shift - r"
+        && settings.swipe.scroll.modifier == "alt"
+        && settings.bindings.window_resize == "alt - rightbracket"
+        && settings.bindings.window_shrink == "alt - leftbracket"
         && settings.bindings.window_center == "alt - c";
       leavesTrackpadGesturesUnmanaged =
         home:
