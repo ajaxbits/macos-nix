@@ -16,20 +16,22 @@ for file in "$root/shells/bin/"* "$root/shells/share/work-shell-secrets/"*; do
     --expression "s|/work-shell-secrets-test|$root|g" "$file"
 done
 
-identity="$root/Library/Application Support/agenix/identity.txt"
-mkdir -p "$(dirname "$identity")"
-age-keygen --output "$identity"
-recipient=$(age-keygen -y "$identity")
 terraform_token='test token with $dollars; "quotes" and $(not-a-command)'
 jfrog_username='alex+build@upside.com'
 jfrog_token='jfrog/token+$with:special@characters'
-encrypt() {
+write_secret() {
   local value=$1 output=$2
-  printf '%s\n' "$value" | age --encrypt --recipient "$recipient" --output "$output"
+  printf '%s\n' "$value" >"$output"
+  chmod 400 "$output"
 }
-encrypt "$terraform_token" "$root/terraform token.age"
-encrypt "$jfrog_username" "$root/jfrog username.age"
-encrypt "$jfrog_token" "$root/jfrog token.age"
+write_secret "$terraform_token" "$root/terraform token"
+write_secret "$jfrog_username" "$root/jfrog username"
+write_secret "$jfrog_token" "$root/jfrog token"
+
+if grep --recursive --extended-regexp 'age-plugin-se|age --decrypt|read-(JFROG|TF_TOKEN)' "$root/shells"; then
+  echo 'shell startup package still contains a decryption command' >&2
+  exit 1
+fi
 
 home="$root/home"
 mkdir -p "$home/.config/fish/conf.d"
@@ -76,27 +78,21 @@ run "$fish" -c '/bin/bash -c '\''"$VERIFY_SECRETS"'\''; and /bin/sh -c '\''"$VER
 run "$zsh" -c '/bin/bash -c '\''"$VERIFY_SECRETS"'\'' && /bin/sh -c '\''"$VERIFY_SECRETS"'\'''
 run "$root/shells/bin/bash" --noprofile --norc -c '"$VERIFY_SECRETS"'
 
-# New shells read rotated ciphertext rather than retaining an old value.
+# New shells read rotated plaintext rather than retaining an old value.
 terraform_token=rotated-token
-encrypt "$terraform_token" "$root/terraform token.age"
+chmod 600 "$root/terraform token"
+write_secret "$terraform_token" "$root/terraform token"
 run "$fish" -c '"$VERIFY_SECRETS"'
 run "$zsh" -c '"$VERIFY_SECRETS"'
 run "$root/shells/bin/bash" -c '"$VERIFY_SECRETS"'
 
 # A missing JFrog token unsets stale token-dependent values without suppressing
 # independently decryptable work secrets.
-mv "$root/jfrog token.age" "$root/jfrog-token.saved.age"
+mv "$root/jfrog token" "$root/jfrog-token.saved"
 run env JFROG_TOKEN=stale PIP_INDEX_URL=stale "$fish" -c \
-  'set --query TF_TOKEN_app_terraform_io; and set --query JFROG_USERNAME; and not set --query JFROG_TOKEN; and not set --query PIP_INDEX_URL' \
-  2>"$root/errors"
-grep --fixed-strings 'Unable to decrypt work shell secret JFROG_TOKEN' "$root/errors"
+  'set --query TF_TOKEN_app_terraform_io; and set --query JFROG_USERNAME; and not set --query JFROG_TOKEN; and not set --query PIP_INDEX_URL'
 
-: >"$root/empty"
-age --encrypt --recipient "$recipient" --output "$root/jfrog token.age" "$root/empty"
-if "$root/shells/bin/read-JFROG_TOKEN" >"$root/output" 2>"$root/errors"; then
-  echo 'empty secret was accepted' >&2
-  exit 1
-fi
-test ! -s "$root/output"
-grep --fixed-strings 'Work shell secret JFROG_TOKEN is empty' "$root/errors"
+: >"$root/jfrog token"
+run env JFROG_TOKEN=stale PIP_INDEX_URL=stale "$fish" -c \
+  'not set --query JFROG_TOKEN; and not set --query PIP_INDEX_URL'
 printf 'Work shell secret startup tests passed\n'

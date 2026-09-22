@@ -78,11 +78,10 @@ in
         jfrog = import ../lib/jfrog-shell-env.nix { inherit pkgs; };
         shells = import ../lib/work-shell-secrets.nix {
           inherit pkgs;
-          identityPath = config.macosNix.host.ageIdentityPath;
           secrets = {
-            TF_TOKEN_app_terraform_io = ../secrets/terraform_cloud_token.age;
-            JFROG_USERNAME = ../secrets/jfrog_username.age;
-            JFROG_TOKEN = ../secrets/jfrog_token.age;
+            TF_TOKEN_app_terraform_io = config.age.secrets.terraform_cloud_token.path;
+            JFROG_USERNAME = config.age.secrets.jfrog_username.path;
+            JFROG_TOKEN = config.age.secrets.jfrog_token.path;
           };
           posixExtra = jfrog.posix;
           fishExtra = jfrog.fish;
@@ -90,6 +89,11 @@ in
         shellEnv = "${shells}/share/work-shell-secrets/env.sh";
       in
       {
+        age.secrets = {
+          terraform_cloud_token.file = ../secrets/terraform_cloud_token.age;
+          jfrog_username.file = ../secrets/jfrog_username.age;
+          jfrog_token.file = ../secrets/jfrog_token.age;
+        };
         home.packages = [ shells ];
         # These run for new shells regardless of the parent application's env.
         xdg.configFile."fish/conf.d/work-shell-secrets.fish".source =
@@ -113,11 +117,11 @@ in
       jfrogFixture = import ../lib/jfrog-shell-env.nix { inherit pkgs; };
       tokenShellsFixture = import ../lib/work-shell-secrets.nix {
         inherit pkgs;
-        identityPath = "/work-shell-secrets-test/Library/Application Support/agenix/identity.txt";
         secrets = {
-          TF_TOKEN_app_terraform_io = "/work-shell-secrets-test/terraform token.age";
-          JFROG_USERNAME = "/work-shell-secrets-test/jfrog username.age";
-          JFROG_TOKEN = "/work-shell-secrets-test/jfrog token.age";
+          # Match agenix's Darwin paths so tests exercise runtime command substitution.
+          TF_TOKEN_app_terraform_io = "$(printf '%s' '/work-shell-secrets-test')/terraform token";
+          JFROG_USERNAME = "$(printf '%s' '/work-shell-secrets-test')/jfrog username";
+          JFROG_TOKEN = "$(printf '%s' '/work-shell-secrets-test')/jfrog token";
         };
         posixExtra = jfrogFixture.posix;
         fishExtra = jfrogFixture.fish;
@@ -224,7 +228,6 @@ in
           pkgs.runCommand "work-shell-secrets-test"
             {
               nativeBuildInputs = with pkgs; [
-                age
                 bash
                 coreutils
                 fish

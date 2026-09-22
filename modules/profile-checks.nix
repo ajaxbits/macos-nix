@@ -117,6 +117,8 @@
       workHasKagi = workHome.age.secrets ? kagi_api_key;
       personalHasTerraformToken = personalHome.age.secrets ? terraform_cloud_token;
       workHasTerraformToken = workHome.age.secrets ? terraform_cloud_token;
+      workHasJfrogUsername = workHome.age.secrets ? jfrog_username;
+      workHasJfrogToken = workHome.age.secrets ? jfrog_token;
       hasManagedOpenCodeConfig =
         home:
         home.programs.opencode.enable
@@ -476,7 +478,9 @@
         {
           assertion =
             !personalHasTerraformToken
-            && !workHasTerraformToken
+            && workHasTerraformToken
+            && workHasJfrogUsername
+            && workHasJfrogToken
             && !(personalHome.launchd.agents ? terraform-cloud-token-environment)
             && !(workHome.launchd.agents ? terraform-cloud-token-environment)
             && !(lib.elem "work-shell-secrets" personalHomePackages)
@@ -489,7 +493,7 @@
               ".bash_profile"
               ".profile"
             ];
-          message = "work secrets must be loaded at shell startup only by the work profile";
+          message = "work secrets must be decrypted once and loaded at shell startup only by the work profile";
         }
         {
           assertion =
