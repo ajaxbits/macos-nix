@@ -163,6 +163,29 @@
       workWorkspaceAppIds = workspaceAppIds work;
       realPersonalWorkspaceAppIds = workspaceAppIds realPersonal;
       realWorkWorkspaceAppIds = workspaceAppIds realWork;
+      hasKeyboardFirstPaneruSettings =
+        system:
+        let
+          settings = system.services.paneru.settings;
+        in
+        !(settings ? options)
+        && !(settings.swipe ? gesture)
+        && settings.swipe.scroll.modifier == "ralt"
+        && settings.bindings.window_resize == "alt - r"
+        && settings.bindings.window_shrink == "alt + shift - r"
+        && settings.bindings.window_center == "alt - c";
+      leavesTrackpadGesturesUnmanaged =
+        home:
+        let
+          defaults = home.targets.darwin.currentHostDefaults.NSGlobalDomain or { };
+        in
+        lib.all (key: !(builtins.hasAttr key defaults)) [
+          "com.apple.trackpad.threeFingerDragGesture"
+          "com.apple.trackpad.threeFingerHorizSwipeGesture"
+          "com.apple.trackpad.threeFingerVertSwipeGesture"
+          "com.apple.trackpad.fourFingerHorizSwipeGesture"
+          "com.apple.trackpad.fourFingerVertSwipeGesture"
+        ];
 
       expectedPersonalSystemPackages = builtins.sort builtins.lessThan [
         "bash-interactive"
@@ -338,6 +361,14 @@
             && workHome.home.file ? ".hushlogin"
             && workHome.home.file.".hushlogin".text == "";
           message = "Home Manager must suppress macOS login banners for every profile";
+        }
+        {
+          assertion =
+            hasKeyboardFirstPaneruSettings personal
+            && hasKeyboardFirstPaneruSettings work
+            && leavesTrackpadGesturesUnmanaged personalHome
+            && leavesTrackpadGesturesUnmanaged workHome;
+          message = "Paneru must use keyboard-first controls without taking over native trackpad gestures";
         }
         {
           assertion =
