@@ -10,6 +10,7 @@
           casks = [
             "ankerwork"
             "betterdisplay"
+            "balenaetcher"
             "fantastical"
             "helium-browser"
             "hiddenbar"
@@ -28,7 +29,6 @@
     brew-personal.darwin.homebrew = {
       onActivation.cleanup = "zap";
       casks = [
-        "balenaetcher"
         "bitwarden"
         "discord"
         "notesnook"
