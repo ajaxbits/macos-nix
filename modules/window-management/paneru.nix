@@ -35,7 +35,10 @@
 
           # Paneru intercepts scrolling only while Option is held and leaves
           # ordinary trackpad gestures untouched.
-          swipe.scroll.modifier = "alt";
+          swipe.scroll = {
+            modifier = "alt";
+            vertical_modifier = "shift";
+          };
 
           bindings = {
             window_focus_west = "alt - h";
