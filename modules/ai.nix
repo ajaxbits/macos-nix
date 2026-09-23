@@ -9,7 +9,10 @@
         homeManager =
           { pkgs, ... }:
           {
-            home.packages = [ pkgs.llm-agents.opencode2 ];
+            home.packages = with pkgs.llm-agents; [
+              omp
+              opencode2
+            ];
           };
       };
 

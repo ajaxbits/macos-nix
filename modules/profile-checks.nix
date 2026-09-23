@@ -260,6 +260,7 @@
         "man-db"
         "nix-output-monitor"
         "opencode2"
+        "omp"
         "seventeenlands"
         "starship"
         "xh"
@@ -439,6 +440,8 @@
             && lib.elem "claude-code" workHomePackages
             && lib.elem "opencode2" personalHomePackages
             && lib.elem "opencode2" workHomePackages
+            && lib.elem "omp" personalHomePackages
+            && lib.elem "omp" workHomePackages
             && !(lib.elem "opencode" personalHomePackages)
             && !(lib.elem "opencode" workHomePackages)
             && !(lib.elem "claude" personalCasks)
