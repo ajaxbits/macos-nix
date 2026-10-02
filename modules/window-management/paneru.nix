@@ -6,6 +6,14 @@
     # corresponding macOS Mission Control setting.
     system.defaults.spaces.spans-displays = false;
 
+    services.jankyborders = {
+      enable = true;
+      hidpi = true;
+      active_color = "0xffebdbb2";
+      inactive_color = "0xff282828";
+      width = 10.0;
+    };
+
     services.paneru = {
       enable = true;
       settings = {
@@ -82,6 +90,11 @@
           bundle_id = "org.mozilla.firefox";
           title = "Picture-in-Picture";
           floating = true;
+        };
+        windows.all = {
+          title = ".*";
+          horizontal_padding = 2;
+          vertical_padding = 0;
         };
       };
     };
