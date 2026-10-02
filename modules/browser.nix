@@ -81,9 +81,26 @@ let
     userChrome = ./firefox/userChrome.css;
     settings = firefoxSettings;
   };
+  # The firefox-bin wrapper execs into its /nix/store Firefox.app, so
+  # LaunchServices accumulates store copies under org.mozilla.firefox. When one
+  # wins bundle-ID resolution, link handoffs (Yojam, `open`) miss the running
+  # instance, spawn a second one, and the URL is dropped. Keep only the copyApps
+  # bundle registered.
+  launchServicesActivation = lib: config: lib.hm.dag.entryAfter [ "copyApps" ] ''
+    lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
+    app=${lib.escapeShellArg "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/Firefox.app"}
+    if [[ -d $app ]]; then
+      while IFS= read -r bundle; do
+        if [[ -e $bundle ]]; then
+          run "$lsregister" -u "$bundle"
+        fi
+      done < <("$lsregister" -dump | sed -n 's|^path: *\(/nix/store/.*/Firefox\.app\) (0x[0-9a-f]*)$|\1|p')
+      run "$lsregister" -f "$app"
+    fi
+  '';
 in
 {
-  flake.aspects.firefox-personal.homeManager = { pkgs, ... }: {
+  flake.aspects.firefox-personal.homeManager = { config, lib, pkgs, ... }: {
     programs.firefox = {
       enable = true;
       # Firefox is installed and managed entirely by home-manager from the Nix
@@ -123,6 +140,8 @@ in
       "${profilePath}/chrome/chrome/window_control_placeholder_support.css".source = ./firefox/chrome/window_control_placeholder_support.css;
     };
 
+    home.activation.firefoxLaunchServices = launchServicesActivation lib config;
+
     targets.darwin.defaults."org.mozilla.firefox" = {
       EnterprisePoliciesEnabled = true;
       ExtensionSettings = autoUpdatingExtensionSettings // lib.genAttrs workOnlyExtensions (_: {
@@ -131,7 +150,7 @@ in
     };
   };
 
-  flake.aspects.firefox-work.homeManager = { pkgs, ... }: {
+  flake.aspects.firefox-work.homeManager = { config, lib, pkgs, ... }: {
     programs.firefox = {
       enable = true;
       # Installed and managed entirely by home-manager from the Nix store
@@ -150,6 +169,8 @@ in
       "${profilePath}/chrome/chrome/hide_tabs_toolbar_v2.css".source = ./firefox/chrome/hide_tabs_toolbar_v2.css;
       "${profilePath}/chrome/chrome/window_control_placeholder_support.css".source = ./firefox/chrome/window_control_placeholder_support.css;
     };
+
+    home.activation.firefoxLaunchServices = launchServicesActivation lib config;
 
     targets.darwin.defaults."org.mozilla.firefox" = {
       EnterprisePoliciesEnabled = true;
