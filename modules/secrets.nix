@@ -2,18 +2,16 @@
 { inputs, ... }:
 let
   # The pinned upstream module splits identity paths containing spaces in both
-  # its preflight check and decryption loop (e.g. macOS Application Support).
+  # its identity array and preflight check (e.g. macOS Application Support).
   agenixHomeModule = builtins.toFile "agenix-home-quoted-identities.nix" (
     builtins.replaceStrings
       [
-        "for identity in \${toString cfg.identityPaths}; do"
+        "_agenix_identity_paths=( \${toString cfg.identityPaths} )"
         "test -f \${path} ||"
-        "# shellcheck disable=2043"
       ]
       [
-        "for identity in \${lib.escapeShellArgs cfg.identityPaths}; do"
+        "_agenix_identity_paths=( \${lib.escapeShellArgs cfg.identityPaths} )"
         "test -f \${lib.escapeShellArg path} ||"
-        "# A configured identity list may contain just one path with spaces.\n    # shellcheck disable=SC2041,SC2043"
       ]
       (builtins.readFile inputs.agenix.homeManagerModules.default)
   );
@@ -214,8 +212,9 @@ in
                 --replace-fail '/agenix-test' "$PWD"
               shellcheck ./mount-secrets
               bash ./mount-secrets > output 2> errors
-              test ! -s errors
-              if grep -E 'no readable identities found|identity.txt not present' output; then
+              # Only the deliberately missing identity may warn.
+              test "$(cat errors)" = "[agenix] WARNING: config.age.identityPaths entry $PWD/missing identity not present!"
+              if grep -E 'no readable identities found|identity.txt not present' output errors; then
                 exit 1
               fi
               cmp plaintext secrets/token

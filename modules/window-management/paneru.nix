@@ -98,5 +98,11 @@
         };
       };
     };
+
+    # Paneru's in-daemon `restart` (binding, `send-cmd restart`) spawns
+    # `paneru restart` as a child, which boots out its own launchd job. By
+    # default launchd then kills the job's whole process group, taking the
+    # helper down before it can bootstrap the agent again.
+    launchd.user.agents.paneru.serviceConfig.AbandonProcessGroup = true;
   };
 }
