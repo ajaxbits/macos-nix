@@ -1,6 +1,12 @@
 # Fish shell (homeManager aspect)
-{ inputs, lib, ... }:
+{
+  config,
+  inputs,
+  lib,
+  ...
+}:
 let
+  common = config.flake.modules.homeManager.fish-common;
   mkRebuildFunction =
     {
       checkout,
@@ -38,15 +44,26 @@ in
     macosNix.mkRebuildFunction = mkRebuildFunction;
 
     flake.aspects.fish.homeManager =
+      { config, pkgs, ... }:
       {
-        config,
+        imports = [ common ];
+        programs.fish.functions.nixre = mkRebuildFunction {
+          checkout = config.macosNix.host.flakeDirectory;
+          outputName = config.macosNix.host.outputName;
+          buildExe = lib.getExe pkgs.nix-output-monitor;
+          sudoExe = "/usr/bin/sudo";
+          rebuildExe = lib.getExe inputs.darwin.packages.${pkgs.stdenv.hostPlatform.system}.darwin-rebuild;
+        };
+      };
+
+    flake.aspects.fish-common.homeManager =
+      {
         pkgs,
         lib,
         ...
       }:
       let
         inherit (lib.meta) getExe;
-        inherit (config.macosNix) host;
         jj = getExe pkgs.jujutsu;
         sd = getExe pkgs.sd;
       in
@@ -98,15 +115,6 @@ in
                     set dirname $argv[1]
                 end
                 pushd (mktemp -d -t $dirname.XXXX)
-              '';
-              nixre = ''
-                ${mkRebuildFunction {
-                  checkout = host.flakeDirectory;
-                  outputName = host.outputName;
-                  buildExe = getExe pkgs.nix-output-monitor;
-                  sudoExe = "/usr/bin/sudo";
-                  rebuildExe = getExe inputs.darwin.packages.${pkgs.stdenv.hostPlatform.system}.darwin-rebuild;
-                }}
               '';
             };
 

@@ -1,6 +1,10 @@
+{ config, ... }:
+let
+  common = config.flake.modules.homeManager.terminal-common;
+in
 {
   flake.aspects.terminal = {
-    # Ghostty workspace in aerospace — terminal owns its own tiling integration
+    # Terminal owns its workspace and window-management integration.
     darwin =
       { pkgs, ... }:
       {
@@ -35,23 +39,11 @@
     homeManager =
       { pkgs, ... }:
       {
+        imports = [ common ];
         programs.ghostty = {
-          enable = true;
           package = pkgs.ghostty-bin;
-          enableFishIntegration = true;
-          installBatSyntax = true;
           settings = {
-            copy-on-select = true;
-            desktop-notifications = true;
             window-decoration = "none";
-            font-family = "Atkinson Hyperlegible Mono";
-            font-family-bold = "Atkinson Hyperlegible Mono SemiBold";
-            font-family-bold-italic = "Atkinson Hyperlegible Mono SemiBold Italic";
-            font-size = 13;
-            theme = "Gruvbox Dark";
-
-            window-vsync = true;
-
             keybind = [
               "cmd+shift+backslash=new_split:right"
               "cmd+shift+minus=new_split:down"
@@ -71,5 +63,23 @@
           };
         };
       };
+  };
+
+  flake.aspects.terminal-common.homeManager = {
+    programs.ghostty = {
+      enable = true;
+      enableFishIntegration = true;
+      installBatSyntax = true;
+      settings = {
+        copy-on-select = true;
+        desktop-notifications = true;
+        font-family = "Atkinson Hyperlegible Mono";
+        font-family-bold = "Atkinson Hyperlegible Mono SemiBold";
+        font-family-bold-italic = "Atkinson Hyperlegible Mono SemiBold Italic";
+        font-size = 13;
+        theme = "Gruvbox Dark";
+        window-vsync = true;
+      };
+    };
   };
 }

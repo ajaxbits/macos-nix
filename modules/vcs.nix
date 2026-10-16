@@ -1,7 +1,33 @@
 # Version control: git + jujutsu (homeManager aspect)
-{ ... }:
+{ config, ... }:
+let
+  common = config.flake.modules.homeManager.vcs-common;
+in
 {
   flake.aspects.vcs.homeManager =
+    { config, ... }:
+    let
+      host = config.macosNix.host;
+    in
+    {
+      imports = [ common ];
+      programs.git = {
+        signing.format = null; # Preserve the existing pre-25 state-version behavior.
+        settings.user = {
+          name = host.gitName;
+          email = host.gitEmail;
+        };
+      };
+      assertions = [
+        {
+          assertion =
+            host.synthetic || (host.gitName != "FIXME" && host.gitEmail != "FIXME@work.example.com");
+          message = "macosNix.host must provide a non-placeholder Git identity";
+        }
+      ];
+    };
+
+  flake.aspects.vcs-common.homeManager =
     {
       config,
       pkgs,
@@ -9,7 +35,6 @@
       ...
     }:
     let
-      inherit (config.macosNix) host;
       gitCfg = config.programs.git;
       jj = lib.getExe pkgs.jujutsu;
       delta = lib.getExe pkgs.delta;
@@ -19,10 +44,7 @@
         git = {
           enable = true;
           lfs.enable = true;
-          signing.format = null; # because home.stateVersion < 25
           settings = {
-            user.name = host.gitName;
-            user.email = host.gitEmail;
             init.defaultBranch = "main";
             pull.rebase = false;
             url."git@github.com:".insteadOf = "https://github.com/";
@@ -134,12 +156,5 @@
         '';
       };
 
-      assertions = [
-        {
-          assertion =
-            host.synthetic || (host.gitName != "FIXME" && host.gitEmail != "FIXME@work.example.com");
-          message = "macosNix.host must provide a non-placeholder Git identity";
-        }
-      ];
     };
 }
