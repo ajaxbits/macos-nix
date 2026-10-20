@@ -22,7 +22,6 @@ foundation switch. Bootstrap never falls back to the personal output.
 Nix may ask whether to trust this flake's extra substituters and public keys:
 
 - `https://cache.nix.ajax.casa/patroclus` (personal cache)
-- `https://cache.garnix.io`
 - `https://cache.numtide.com`
 
 The bootstrap does not require the personal cache. Declining the flake settings is

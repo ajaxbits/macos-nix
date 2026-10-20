@@ -34,11 +34,7 @@
       nix = {
         settings = {
           substituters = [ "https://cache.nix.ajax.casa/patroclus?priority=10" ];
-          trusted-substituters = [ "https://cache.garnix.io" ];
-          trusted-public-keys = [
-            "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
-            "patroclus:Qy1DbSYS2lL+DDxXY+e0C4ryF7COHyf6LN4g4OtcbW4="
-          ];
+          trusted-public-keys = [ "patroclus:Qy1DbSYS2lL+DDxXY+e0C4ryF7COHyf6LN4g4OtcbW4=" ];
           # The cache is private; the daemon reads the agenix-managed netrc below.
           netrc-file = "${config.macosNix.host.homeDirectory}/.config/nix/netrc";
         };
