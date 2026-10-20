@@ -32,6 +32,8 @@
       nix.package = lixPackageSet.lix;
 
       nix = {
+        # Flakes only; drops the nonexistent root channels entry from NIX_PATH.
+        channel.enable = false;
         settings = {
           substituters = [ "https://cache.nix.ajax.casa/patroclus?priority=10" ];
           trusted-public-keys = [ "patroclus:Qy1DbSYS2lL+DDxXY+e0C4ryF7COHyf6LN4g4OtcbW4=" ];

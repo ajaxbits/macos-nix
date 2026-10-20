@@ -17,7 +17,7 @@
             uv
             viddy
 
-            inputs.nvim.packages.${pkgs.system}.default
+            inputs.nvim.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
         };
       homeManager =
