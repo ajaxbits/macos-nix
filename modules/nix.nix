@@ -26,6 +26,20 @@
               nurl
               ;
           })
+          # ponytail: backport of NixOS/nixpkgs#574509; drop once it lands in our nixpkgs.
+          (final: prev: {
+            atuin = prev.atuin.overrideAttrs (old: {
+              nativeCheckInputs = (old.nativeCheckInputs or [ ]) ++ [ final.writableTmpDirAsHomeHook ];
+              preCheck = "";
+              env = (old.env or { }) // {
+                ATUIN_E2E_BASH = final.lib.getExe (
+                  final.writeShellScriptBin "bash" ''
+                    NOSYSBASHRC=1 exec ${final.lib.getExe final.bashInteractive} "$@"
+                  ''
+                );
+              };
+            });
+          })
         ];
       };
 
