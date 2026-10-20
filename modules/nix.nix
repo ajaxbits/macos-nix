@@ -26,20 +26,6 @@
               nurl
               ;
           })
-          # ponytail: backport of NixOS/nixpkgs#574509; drop once it lands in our nixpkgs.
-          (final: prev: {
-            atuin = prev.atuin.overrideAttrs (old: {
-              nativeCheckInputs = (old.nativeCheckInputs or [ ]) ++ [ final.writableTmpDirAsHomeHook ];
-              preCheck = "";
-              env = (old.env or { }) // {
-                ATUIN_E2E_BASH = final.lib.getExe (
-                  final.writeShellScriptBin "bash" ''
-                    NOSYSBASHRC=1 exec ${final.lib.getExe final.bashInteractive} "$@"
-                  ''
-                );
-              };
-            });
-          })
         ];
       };
 
@@ -47,10 +33,14 @@
 
       nix = {
         settings = {
+          substituters = [ "https://cache.nix.ajax.casa/patroclus?priority=10" ];
           trusted-substituters = [ "https://cache.garnix.io" ];
           trusted-public-keys = [
             "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
+            "patroclus:Qy1DbSYS2lL+DDxXY+e0C4ryF7COHyf6LN4g4OtcbW4="
           ];
+          # The cache is private; the daemon reads the agenix-managed netrc below.
+          netrc-file = "${config.macosNix.host.homeDirectory}/.config/nix/netrc";
         };
         gc = {
           automatic = true;
@@ -64,6 +54,54 @@
           experimental-features = nix-command flakes
           extra-platforms = x86_64-darwin aarch64-darwin
         '';
+      };
+    };
+
+  # Push every new store path to patroclus; attic skips paths already
+  # signed by cache.nixos.org.
+  flake.aspects.nix.homeManager =
+    { config, pkgs, ... }:
+    {
+      age.secrets = {
+        nix_netrc = {
+          file = ../secrets/nix_netrc.age;
+          path = "${config.xdg.configHome}/nix/netrc";
+        };
+        attic_token = {
+          file = ../secrets/attic_token.age;
+          path = "${config.xdg.configHome}/attic/token";
+        };
+      };
+
+      home.packages = [ pkgs.attic-client ];
+
+      xdg.configFile."attic/config.toml" = {
+        # Replaces the hand-placed config that inlined the token.
+        force = true;
+        text = ''
+          default-server = "patroclus"
+
+          [servers.patroclus]
+          endpoint = "https://cache.nix.ajax.casa"
+          token-file = "${config.age.secrets.attic_token.path}"
+        '';
+      };
+
+      launchd.agents.attic-watch-store = {
+        enable = true;
+        config = {
+          ProgramArguments = [
+            "${pkgs.attic-client}/bin/attic"
+            "watch-store"
+            "patroclus"
+          ];
+          RunAtLoad = true;
+          KeepAlive = true;
+          # Back off while offline or before agenix has decrypted the token.
+          ThrottleInterval = 30;
+          StandardOutPath = "${config.home.homeDirectory}/Library/Logs/attic-watch-store.log";
+          StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/attic-watch-store.log";
+        };
       };
     };
 }

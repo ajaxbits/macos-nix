@@ -29,6 +29,11 @@ The bootstrap does not require the personal cache. Declining the flake settings 
 supported; Nix can use its normal configured caches or build locally. Only accept
 additional cache trust after reviewing the URL and key shown by Nix.
 
+After the first switch, nix-darwin trusts the personal cache system-wide and reads
+its credentials from the agenix-managed `~/.config/nix/netrc`. A home-manager
+`attic-watch-store` agent pushes every new store path to it
+(log: `~/Library/Logs/attic-watch-store.log`).
+
 ## 1. Check Readiness
 
 ```sh

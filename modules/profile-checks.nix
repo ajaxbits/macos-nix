@@ -236,6 +236,7 @@
         "age"
         "age-plugin-se"
         "agenix"
+        "attic"
         "atuin"
         "bat"
         "delta"
@@ -464,10 +465,14 @@
         }
         {
           assertion =
-            builtins.attrNames personalHome.launchd.agents == [ "activate-agenix" ]
+            builtins.attrNames personalHome.launchd.agents == [
+              "activate-agenix"
+              "attic-watch-store"
+            ]
             &&
               builtins.attrNames workHome.launchd.agents == [
                 "activate-agenix"
+                "attic-watch-store"
                 "opencode-upside-sync"
               ];
           message = "the profile launch agents differ from the approved exact sets";

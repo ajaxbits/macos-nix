@@ -13,4 +13,12 @@ in
   ];
   "jfrog_username.age".publicKeys = [ workMac ];
   "jfrog_token.age".publicKeys = [ workMac ];
+  "attic_token.age".publicKeys = [
+    ajax
+    workMac
+  ];
+  "nix_netrc.age".publicKeys = [
+    ajax
+    workMac
+  ];
 }
