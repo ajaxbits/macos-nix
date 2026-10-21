@@ -1,6 +1,5 @@
-# Firefox is installed and managed by home-manager from the Nix store
-# (pkgs.firefox-bin). This is fully declarative but forgoes Homebrew's native
-# in-app auto-updates; the browser version is pinned by flake.lock.
+# Firefox is installed by the Homebrew cask (Mozilla-signed, updates itself
+# in-app); home-manager only manages the profile, prefs and policies.
 { lib, ... }:
 let
   profilePath = "Library/Application Support/Firefox/Profiles/ffeb7rvx.default-release-2";
@@ -81,39 +80,20 @@ let
     userChrome = ./firefox/userChrome.css;
     settings = firefoxSettings;
   };
-  # The firefox-bin wrapper execs into its /nix/store Firefox.app, so
-  # LaunchServices accumulates store copies under org.mozilla.firefox. When one
-  # wins bundle-ID resolution, or the running instance is tracked under a store
-  # copy, link handoffs (Yojam, `open`) miss the running instance, spawn a
-  # second one, and the URL is dropped. Exec the launcher next to the wrapper so
-  # the copyApps bundle stays the running bundle, and keep only it registered.
-  firefoxPackage = pkgs: pkgs.firefox-bin.overrideAttrs (old: {
-    buildCommand = old.buildCommand + ''
-      substituteInPlace "$out/Applications/Firefox.app/Contents/MacOS/firefox" \
-        --replace-fail "\"$out/Applications/Firefox.app/Contents/MacOS/.firefox-old\"" '"''${0%/*}/.firefox-old"'
-    '';
-  });
-  launchServicesActivation = lib: config: lib.hm.dag.entryAfter [ "copyApps" ] ''
-    lsregister=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
-    app=${lib.escapeShellArg "${config.home.homeDirectory}/${config.targets.darwin.copyApps.directory}/Firefox.app"}
-    if [[ -d $app ]]; then
-      while IFS= read -r bundle; do
-        if [[ -e $bundle ]]; then
-          run "$lsregister" -u "$bundle"
-        fi
-      done < <("$lsregister" -dump | sed -n 's|^path: *\(/nix/store/.*/Firefox\.app\) (0x[0-9a-f]*)$|\1|p')
-      run "$lsregister" -f "$app"
-    fi
-  '';
+  # The cask Firefox has no Nix wrapper, so set MOZ_LEGACY_PROFILES for
+  # LaunchServices launches: it keeps Firefox on profiles.ini's default profile
+  # instead of writing install-specific entries to the read-only HM profiles.ini.
+  firefoxDarwin = {
+    homebrew.casks = [ "firefox" ];
+    launchd.user.envVariables.MOZ_LEGACY_PROFILES = "1";
+  };
 in
 {
-  flake.aspects.firefox-personal.homeManager = { config, lib, pkgs, ... }: {
+  flake.aspects.firefox-personal.darwin = firefoxDarwin;
+  flake.aspects.firefox-personal.homeManager = { lib, ... }: {
     programs.firefox = {
       enable = true;
-      # Firefox is installed and managed entirely by home-manager from the Nix
-      # store. This trades Homebrew's automatic in-app updates for a fully
-      # declarative, reproducible browser pinned by flake.lock.
-      package = firefoxPackage pkgs;
+      package = null;
       # Keep the existing profile registry intact while managing the active profile.
       profileVersion = 2;
       profiles.default-release = {
@@ -147,25 +127,19 @@ in
       "${profilePath}/chrome/chrome/window_control_placeholder_support.css".source = ./firefox/chrome/window_control_placeholder_support.css;
     };
 
-    home.activation.firefoxLaunchServices = launchServicesActivation lib config;
-
     targets.darwin.defaults."org.mozilla.firefox" = {
       EnterprisePoliciesEnabled = true;
-      # copyApps bundles are writable; the in-app updater would replace the Nix
-      # wrapper (MOZ_LEGACY_PROFILES etc.) and break profile selection.
-      DisableAppUpdate = true;
       ExtensionSettings = autoUpdatingExtensionSettings // lib.genAttrs workOnlyExtensions (_: {
         installation_mode = "blocked";
       });
     };
   };
 
-  flake.aspects.firefox-work.homeManager = { config, lib, pkgs, ... }: {
+  flake.aspects.firefox-work.darwin = firefoxDarwin;
+  flake.aspects.firefox-work.homeManager = { lib, ... }: {
     programs.firefox = {
       enable = true;
-      # Installed and managed entirely by home-manager from the Nix store
-      # (no Homebrew cask, no in-app auto-update).
-      package = firefoxPackage pkgs;
+      package = null;
       profileVersion = 2;
       # Bridge to the existing Firefox "Profile Groups" store on the work host so
       # the new profile implementation resolves the managed profile instead of
@@ -180,11 +154,8 @@ in
       "${profilePath}/chrome/chrome/window_control_placeholder_support.css".source = ./firefox/chrome/window_control_placeholder_support.css;
     };
 
-    home.activation.firefoxLaunchServices = launchServicesActivation lib config;
-
     targets.darwin.defaults."org.mozilla.firefox" = {
       EnterprisePoliciesEnabled = true;
-      DisableAppUpdate = true;
       ExtensionSettings = autoUpdatingExtensionSettings // lib.genAttrs workOnlyExtensions (_: {
         installation_mode = "normal_installed";
         updates_disabled = false;

@@ -99,6 +99,11 @@ def launch(arguments: list[str]) -> None:
             "run",
             "--quiet",
             "--no-project",
+            # Without a pin, uv picks the newest managed CPython, which can be
+            # too new for the proxy's native dependencies to build (watchfiles
+            # failed on 3.15). Reuse the Nix interpreter running this script.
+            "--python",
+            sys.executable,
             "--with",
             PROXY_PACKAGE,
             "python",

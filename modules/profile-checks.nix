@@ -243,7 +243,6 @@
         "direnv"
         "entr"
         "eza"
-        "firefox-bin"
         "fish"
         "fx"
         "fzf"
@@ -277,6 +276,7 @@
         "calibre"
         "discord"
         "fantastical"
+        "firefox"
         "helium-browser"
         "hiddenbar"
         "jordanbaird-ice"
@@ -553,8 +553,12 @@
         {
           assertion =
             personalHome.programs.firefox.enable
-            && personalHome.programs.firefox.package != null
-            && workHome.programs.firefox.package != null
+            && personalHome.programs.firefox.package == null
+            && workHome.programs.firefox.package == null
+            && lib.elem "firefox" (caskNames personal.homebrew.casks)
+            && lib.elem "firefox" workCasks
+            && personal.launchd.user.envVariables.MOZ_LEGACY_PROFILES == "1"
+            && work.launchd.user.envVariables.MOZ_LEGACY_PROFILES == "1"
             && firefoxProfile.path == "ffeb7rvx.default-release-2"
             && firefoxProfile.storeId == "cb8ad46c"
             && firefoxProfile.settings."dom.security.https_only_mode"
