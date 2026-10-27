@@ -91,6 +91,14 @@
           title = "Picture-in-Picture";
           floating = true;
         };
+        # Ghostty's quick terminal is the only Ghostty window reporting this
+        # subrole; regular Ghostty windows are AXStandardWindow and stay tiled.
+        windows.ghostty-quick-terminal = {
+          bundle_id = "com.mitchellh.ghostty";
+          title = ".*";
+          subrole = "AXFloatingWindow";
+          floating = true;
+        };
         windows.all = {
           title = ".*";
           horizontal_padding = 2;

@@ -43,7 +43,10 @@
 
     brew-work.darwin.homebrew = {
       onActivation.cleanup = "none";
+      # hex's flake is x86_64-linux only; macOS ships via this tap.
+      taps = [ "anomalyco/tap" ];
       casks = [
+        "anomalyco/tap/hex"
         "logseq"
         "yojam"
         "zoom"

@@ -43,6 +43,7 @@ in
         programs.ghostty = {
           package = pkgs.ghostty-bin;
           settings = {
+            quick-terminal-animation-duration = 0;
             window-decoration = "none";
             keybind = [
               "cmd+shift+backslash=new_split:right"
@@ -58,7 +59,7 @@ in
               "cmd+ctrl+k=resize_split:up,20"
               "cmd+ctrl+j=resize_split:down,20"
 
-              "global:cmd+shift+backquote=toggle_quick_terminal"
+              "global:alt+n=toggle_quick_terminal"
             ];
           };
         };

@@ -29,6 +29,7 @@
             fx
             gh
             jujutsu
+            nb
             nix-output-monitor
             xh
             zoxide

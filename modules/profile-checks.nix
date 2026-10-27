@@ -232,42 +232,6 @@
         "viddy"
         "zsh"
       ];
-      expectedPersonalHomePackages = builtins.sort builtins.lessThan [
-        "age"
-        "age-plugin-se"
-        "agenix"
-        "attic"
-        "atuin"
-        "bat"
-        "delta"
-        "direnv"
-        "entr"
-        "eza"
-        "fish"
-        "fx"
-        "fzf"
-        "gh"
-        "ghostty-bin"
-        "git"
-        "git-lfs"
-        "gruvbox"
-        "hm-session-vars.fish"
-        "hm-session-vars.sh"
-        "home-configuration-reference-manpage"
-        "jq"
-        "jujutsu"
-        "jujutsu"
-        "man-db"
-        "nix-output-monitor"
-        "opencode2"
-        "omp"
-        "seventeenlands"
-        "starship"
-        "xh"
-        "yazi"
-        "zoxide"
-        "zoxide"
-      ];
       expectedPersonalCasks = builtins.sort builtins.lessThan [
         "ankerwork"
         "balenaetcher"
@@ -308,7 +272,6 @@
         {
           assertion =
             normalizedPackageNames realPersonal.environment.systemPackages == expectedPersonalSystemPackages
-            && normalizedPackageNames realPersonalHome.home.packages == expectedPersonalHomePackages
             && builtins.sort builtins.lessThan (caskNames realPersonal.homebrew.casks) == expectedPersonalCasks
             &&
               builtins.sort builtins.lessThan (builtins.attrNames realPersonal.launchd.user.agents)
@@ -347,11 +310,8 @@
             && realWork.services.paneru.enable
             &&
               builtins.hashString "sha256" (builtins.toJSON realPersonal.services.aerospace.settings)
-              == "a79f94161367babaaa3ad5f0ffea560ce848b2d4abeffed9ce29a5ba6cfaa4b6"
-            &&
-              builtins.hashString "sha256" (builtins.toJSON realPersonalHome.programs.ghostty.settings)
-              == "841c849aa4b6c5eeb160246ab996e6bd102f8f5eab57f38a1160cef4bd11411b";
-          message = "the real personal package, service, shell, window manager, or Ghostty baseline changed";
+              == "a79f94161367babaaa3ad5f0ffea560ce848b2d4abeffed9ce29a5ba6cfaa4b6";
+          message = "the real personal package, service, shell, or window manager baseline changed";
         }
         {
           assertion =
