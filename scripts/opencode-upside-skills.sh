@@ -128,7 +128,10 @@ run_claude() {
   # on these machines is deliberately authenticated over SSH via Secretive.
   # Add a process-local Git rewrite so Claude's nested clones use that existing
   # Git authentication without coupling them to the separate gh token.
+  # PREFER_HTTPS skips Claude's bare `ssh -T git@github.com` probe, which
+  # bypasses the ControlMaster and costs an extra Touch ID prompt per run.
   env \
+    "CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1" \
     "GIT_CONFIG_COUNT=$((git_config_count + 1))" \
     "GIT_CONFIG_KEY_${git_config_count}=url.git@github.com:.insteadOf" \
     "GIT_CONFIG_VALUE_${git_config_count}=https://github.com/" \
