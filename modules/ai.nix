@@ -13,6 +13,8 @@
               omp
               opencode2
             ];
+            # Hex looks for opencode2 in fixed paths like ~/.local/bin, not the Nix profile.
+            home.file.".local/bin/opencode2".source = "${pkgs.llm-agents.opencode2}/bin/opencode2";
           };
       };
 
