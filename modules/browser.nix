@@ -152,6 +152,15 @@ in
     home.file = {
       "${profilePath}/chrome/chrome/hide_tabs_toolbar_v2.css".source = ./firefox/chrome/hide_tabs_toolbar_v2.css;
       "${profilePath}/chrome/chrome/window_control_placeholder_support.css".source = ./firefox/chrome/window_control_placeholder_support.css;
+      # MOZ_LEGACY_PROFILES is only set by `launchctl setenv` at activation, so it
+      # is gone after a reboot and Firefox reports "Profile Missing". Pin the cask
+      # install (hash of ~/Applications/Firefox.app) to the managed profile instead.
+      "Library/Application Support/Firefox/profiles.ini".text = lib.mkAfter ''
+
+        [Install87AD0D02DF059E48]
+        Default=Profiles/ffeb7rvx.default-release-2
+        Locked=1
+      '';
     };
 
     targets.darwin.defaults."org.mozilla.firefox" = {
