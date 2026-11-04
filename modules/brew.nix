@@ -9,14 +9,15 @@
           onActivation.upgrade = true;
           casks = [
             "ankerwork"
-            "betterdisplay"
             "balenaetcher"
+            "betterdisplay"
             "fantastical"
             "helium-browser"
             "hiddenbar"
             "jordanbaird-ice"
             "keepingyouawake"
             "maccy"
+            "roam-research"
             "rocket"
             "shottr"
             "tailscale-app"
@@ -36,7 +37,6 @@
         "podman-desktop"
         "prismlauncher"
         "raspberry-pi-imager"
-        "roam-research"
         "steam"
       ];
     };
