@@ -99,6 +99,11 @@
           subrole = "AXFloatingWindow";
           floating = true;
         };
+        windows.roam-sidecar = {
+          bundle_id = "com.roam-research.desktop-app";
+          title = "Sidecar";
+          floating = true;
+        };
         windows.all = {
           title = ".*";
           horizontal_padding = 2;

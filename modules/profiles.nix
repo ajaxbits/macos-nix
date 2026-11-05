@@ -17,6 +17,7 @@
           secretive
           secrets
           shared-secrets
+          ssh
           terminal
           user
           vcs
