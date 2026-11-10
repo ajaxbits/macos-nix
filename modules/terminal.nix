@@ -37,9 +37,16 @@ in
       };
 
     homeManager =
-      { pkgs, ... }:
+      { lib, pkgs, ... }:
       {
         imports = [ common ];
+        xdg.configFile."rex/init.lua".source = ./rex/init.lua;
+        # nix-darwin resets PATH at shell start, dropping the rex CLI that Rex prepends.
+        programs.fish.interactiveShellInit = lib.mkAfter ''
+          if set -q REX_BIN_DIR
+              fish_add_path --path --prepend --move $REX_BIN_DIR
+          end
+        '';
         programs.ghostty = {
           package = pkgs.ghostty-bin;
           settings = {

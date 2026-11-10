@@ -15,7 +15,10 @@
             ripgrep
             sd
             uv
-            viddy
+            # shortcut: nixpkgs viddy 1.3.1 fails to link -lsqlite3 on darwin; drop once fixed upstream.
+            (viddy.overrideAttrs (old: {
+              buildInputs = (old.buildInputs or [ ]) ++ [ sqlite ];
+            }))
 
             inputs.nvim.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];

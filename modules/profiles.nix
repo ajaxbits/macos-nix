@@ -1,4 +1,5 @@
 # Explicit feature composition for each profile.
+{ inputs, ... }:
 {
   flake.aspects =
     { aspects, ... }:
@@ -46,13 +47,17 @@
           brew-work
           firefox-work
           foundation
+          linear-work
           work-shell-secrets
         ];
 
         homeManager =
           { config, pkgs, ... }:
           {
-            home.packages = [ pkgs.poetry ];
+            home.packages = [
+              pkgs.poetry
+              inputs.neorex.packages.${pkgs.stdenv.hostPlatform.system}.default
+            ];
             home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
           };
       };

@@ -19,11 +19,12 @@
 
     agenix.url = "github:ryantm/agenix";
     nvim.url = "github:ajaxbits/nvim";
-    llm-agents = {
-      url = "github:numtide/llm-agents.nix";
+    llm-agents.url = "github:numtide/llm-agents.nix";
+    nur.url = "github:nix-community/NUR";
+    neorex = {
+      url = "github:alexrlocke/neorex";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nur.url = "github:nix-community/NUR";
     paneru = {
       url = "github:karinushka/paneru";
       inputs.nixpkgs.follows = "nixpkgs";
