@@ -56,7 +56,6 @@
           {
             home.packages = [
               pkgs.poetry
-              inputs.neorex.packages.${pkgs.stdenv.hostPlatform.system}.default
             ];
             home.sessionPath = [ "${config.home.homeDirectory}/.local/bin" ];
           };

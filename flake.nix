@@ -21,10 +21,6 @@
     nvim.url = "github:ajaxbits/nvim";
     llm-agents.url = "github:numtide/llm-agents.nix";
     nur.url = "github:nix-community/NUR";
-    neorex = {
-      url = "github:alexrlocke/neorex";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     paneru = {
       url = "github:karinushka/paneru";
       inputs.nixpkgs.follows = "nixpkgs";
