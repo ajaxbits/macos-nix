@@ -434,6 +434,7 @@
                 "activate-agenix"
                 "attic-watch-store"
                 "opencode-upside-sync"
+                "todoist-capture"
               ];
           message = "the profile launch agents differ from the approved exact sets";
         }

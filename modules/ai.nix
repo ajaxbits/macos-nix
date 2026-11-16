@@ -21,7 +21,10 @@
       ai-personal.homeManager = { };
 
       ai-work = {
-        includes = [ aspects.opencode-upside-sync ];
+        includes = [
+          aspects.opencode-upside-sync
+          aspects.todoist-capture
+        ];
         darwin.homebrew = {
           enable = true;
           enableBashIntegration = true;
