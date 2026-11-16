@@ -46,6 +46,11 @@ in
           if set -q REX_BIN_DIR
               fish_add_path --path --prepend --move $REX_BIN_DIR
           end
+          # Rex panes open into omp; the exported guard stops nested fish from relaunching it.
+          if set -q REX_SESSION; and not set -q OMP_AUTOSTARTED; and command -q omp
+              set -gx OMP_AUTOSTARTED 1
+              omp
+          end
         '';
         programs.ghostty = {
           package = pkgs.ghostty-bin;
